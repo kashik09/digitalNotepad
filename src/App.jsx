@@ -15,11 +15,29 @@ function filterModules(modules, term) {
   return (modules || [])
     .map((m) => ({
       ...m,
-      sections: m.sections
-        .map((s) => ({ ...s, items: s.items.filter((it) => it.title.toLowerCase().includes(q)) }))
-        .filter((s) => s.items.length > 0),
+      sections: (m.sections || [])
+        .map((s) => ({
+          ...s,
+          items: (s.items || []).filter((it) =>
+            (it.title || "").toLowerCase().includes(q)
+          ),
+        }))
+        .filter((s) => (s.items || []).length > 0),
     }))
-    .filter((m) => m.sections.length > 0);
+    .filter((m) => (m.sections || []).length > 0);
+}
+
+// quick per-module progress
+function moduleStats(module, store) {
+  let total = 0,
+    done = 0;
+  (module.sections || []).forEach((s) =>
+    (s.items || []).forEach((it) => {
+      total++;
+      if (store.items[it.id]?.done) done++;
+    })
+  );
+  return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
 }
 
 export default function App() {
@@ -28,9 +46,26 @@ export default function App() {
   const [phaseId, setPhaseId] = useState(starter.phases[0].id);
   const [q, setQ] = useState("");
   const [showAdd, setShowAdd] = useState(false); // reserved for quick-add UI
-  const [view, setView] = useState("overview");  // "overview" | "notes"
+  const [view, setView] = useState("overview"); // "overview" | "notes"
 
-// 🚀 Lazy-load the selected phase file the first time it's opened
+  // 🔁 Load saved state
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved.data) setData(saved.data);
+      if (saved.store) setStore(saved.store);
+      if (saved.phaseId) setPhaseId(saved.phaseId);
+    } catch {}
+  }, []);
+
+  // 💾 Persist state
+  useEffect(() => {
+    localStorage.setItem(LS_KEY, JSON.stringify({ data, store, phaseId }));
+  }, [data, store, phaseId]);
+
+  // 🚀 Lazy-load the selected phase file the first time it's opened
   useEffect(() => {
     const p = data.phases.find((x) => x.id === phaseId);
     // if this phase already has modules, nothing to load
@@ -58,10 +93,13 @@ export default function App() {
   );
 
   const phaseProgress = useMemo(() => {
-    let total = 0, done = 0, time = 0, pts = 0;
-    current.modules.forEach((m) =>
-      m.sections.forEach((s) =>
-        s.items.forEach((it) => {
+    let total = 0,
+      done = 0,
+      time = 0,
+      pts = 0;
+    (current.modules || []).forEach((m) =>
+      (m.sections || []).forEach((s) =>
+        (s.items || []).forEach((it) => {
           total++;
           if (store.items[it.id]?.done) done++;
           if (it.meta?.timeMin) time += it.meta.timeMin;
@@ -72,8 +110,8 @@ export default function App() {
     return { total, done, pct: total ? (done / total) * 100 : 0, time, pts };
   }, [current, store]);
 
-  const filteredModules = useMemo(
-    () => filterModules(current.modules, q),
+  const visibleModules = useMemo(
+    () => filterModules(current.modules || [], q),
     [current, q]
   );
 
@@ -87,22 +125,28 @@ export default function App() {
       if (!phase?.modules?.length) return d;
       const firstModule = phase.modules[0];
       const sec = firstModule.sections[0];
-      const id = (crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 10));
+      const id = crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 10);
       sec.items.unshift({ id, type, title });
       return copy;
     });
-    document.getElementById("quickTitle").value = "";
+    const el = document.getElementById("quickTitle");
+    if (el) el.value = "";
   }
 
   function doExport() {
-    const blob = new Blob([JSON.stringify({ data, store }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ data, store }, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `cyber-notes-${new Date().toISOString().slice(0,10)}.json`; a.click();
+    a.href = url;
+    a.download = `cyber-notes-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
   }
   function doImport(e) {
-    const file = e.target.files?.[0]; if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       try {
@@ -127,13 +171,17 @@ export default function App() {
           <div className="ml-4 flex rounded-lg overflow-hidden border">
             <button
               onClick={() => setView("overview")}
-              className={`px-3 py-1.5 text-sm ${view === "overview" ? "bg-gray-100 font-medium" : "bg-white"}`}
+              className={`px-3 py-1.5 text-sm ${
+                view === "overview" ? "bg-gray-100 font-medium" : "bg-white"
+              }`}
             >
               Overview
             </button>
             <button
               onClick={() => setView("notes")}
-              className={`px-3 py-1.5 text-sm ${view === "notes" ? "bg-gray-100 font-medium" : "bg-white"}`}
+              className={`px-3 py-1.5 text-sm ${
+                view === "notes" ? "bg-gray-100 font-medium" : "bg-white"
+              }`}
             >
               Notes
             </button>
@@ -144,7 +192,10 @@ export default function App() {
             {view === "notes" && (
               <>
                 <div className="relative">
-                  <Icon name="search" className="w-4 h-4 absolute left-2 top-2.5 text-gray-400" />
+                  <Icon
+                    name="search"
+                    className="w-4 h-4 absolute left-2 top-2.5 text-gray-400"
+                  />
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
@@ -152,12 +203,20 @@ export default function App() {
                     className="pl-7 pr-3 py-2 rounded-lg border bg-white w-56 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
-                <button onClick={doExport} className="px-2.5 py-2 rounded-lg border text-sm hover:bg-gray-100 flex items-center gap-1">
+                <button
+                  onClick={doExport}
+                  className="px-2.5 py-2 rounded-lg border text-sm hover:bg-gray-100 flex items-center gap-1"
+                >
                   Export
                 </button>
                 <label className="px-2.5 py-2 rounded-lg border text-sm hover:bg-gray-100 flex items-center gap-1 cursor-pointer">
                   Import
-                  <input type="file" accept="application/json" className="hidden" onChange={doImport} />
+                  <input
+                    type="file"
+                    accept="application/json"
+                    className="hidden"
+                    onChange={doImport}
+                  />
                 </label>
               </>
             )}
@@ -171,7 +230,10 @@ export default function App() {
           <Overview
             data={overview}
             activePhaseId={phaseId}
-            onJumpToPhase={(pid) => { setPhaseId(pid); setView("notes"); }}
+            onJumpToPhase={(pid) => {
+              setPhaseId(pid);
+              setView("notes");
+            }}
           />
         ) : (
           <>
@@ -180,10 +242,11 @@ export default function App() {
               <h2 className="text-xs font-semibold text-gray-600 mb-2">Phases</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {data.phases.map((p) => {
-                  let total = 0, done = 0;
-                  p.modules.forEach((m) =>
-                    m.sections.forEach((s) =>
-                      s.items.forEach((it) => {
+                  let total = 0,
+                    done = 0;
+                  (p.modules || []).forEach((m) =>
+                    (m.sections || []).forEach((s) =>
+                      (s.items || []).forEach((it) => {
                         total++;
                         if (store.items[it.id]?.done) done++;
                       })
@@ -198,7 +261,7 @@ export default function App() {
                       onClick={() => setPhaseId(p.id)}
                       className={[
                         "text-left rounded-xl border bg-white p-3 shadow-sm hover:shadow transition",
-                        active ? "ring-2 ring-blue-400 border-blue-200" : "border-gray-200"
+                        active ? "ring-2 ring-blue-400 border-blue-200" : "border-gray-200",
                       ].join(" ")}
                     >
                       <div className="text-sm font-semibold">{p.title}</div>
@@ -225,21 +288,58 @@ export default function App() {
                     {phaseProgress.pts} pts
                   </span>
                   <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                    {phaseProgress.done}/{phaseProgress.total} • {Math.round(phaseProgress.pct)}%
+                    {phaseProgress.done}/{phaseProgress.total} •{" "}
+                    {Math.round(phaseProgress.pct)}%
                   </span>
                 </div>
               </div>
 
-              {(current.modules || []).length === 0 ? (
-                <div className="text-sm text-gray-500">No modules yet. Add later.</div>
+              {/* 🔘 Module quick-nav buttons */}
+              {(current.modules || []).length > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-xs font-semibold text-gray-600 mb-2">
+                    Modules
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {visibleModules.map((mod) => {
+                      const st = moduleStats(mod, store);
+                      return (
+                        <button
+                          key={`btn-${mod.id}`}
+                          onClick={() => {
+                            const el = document.getElementById(`mod-${mod.id}`);
+                            if (el)
+                              el.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start",
+                              });
+                          }}
+                          className="text-left rounded-xl border border-gray-200 bg-white p-3 shadow-sm hover:shadow transition"
+                          title={`Jump to ${mod.title}`}
+                        >
+                          <div className="text-sm font-semibold truncate">
+                            {mod.title}
+                          </div>
+                          <div className="mt-1 text-xs text-gray-600">
+                            {st.done}/{st.total} done • {st.pct}%
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Full module content (anchor targets) */}
+              {(visibleModules || []).length === 0 ? (
+                <div className="text-sm text-gray-500">
+                  {q ? "No results for your search." : "No modules yet. Add later."}
+                </div>
               ) : (
-                current.modules.map((mod) => (
-                  <ModuleBlock
-                    key={mod.id}
-                    module={mod}
-                    store={store}
-                    setStore={setStore}
-                  />
+                visibleModules.map((mod) => (
+                  <div key={mod.id} id={`mod-${mod.id}`} className="scroll-mt-20">
+                    <ModuleBlock module={mod} store={store} setStore={setStore} />
+                  </div>
                 ))
               )}
             </section>
