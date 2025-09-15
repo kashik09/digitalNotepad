@@ -162,6 +162,7 @@ export default function App() {
         {view === "overview" ? (
           <Overview
             data={overview}
+            activePhaseId={phaseId}
             onJumpToPhase={(pid) => { setPhaseId(pid); setView("notes"); }}
           />
         ) : (
