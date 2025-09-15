@@ -2,8 +2,8 @@
 // Phase 2 — SYS200, NET200, PYT200, CRY200, CTI100
 export default {
   id: "phase2",
-  title: "Phase 2",
-  subtitle: "Cybersecurity Intermediate Skills • SYS200 • NET200 • PYT200 • CRY200 • CTI100",
+  title: "Phase 2 — Cybersecurity Intermediate Skills",
+  subtitle: "SYS200 • NET200 • PYT200 • CRY200 • CTI100",
   modules: [
     /* ===========================
      * Module 1 — SYS200 (W1 D1–D3)

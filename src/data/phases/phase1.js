@@ -5,8 +5,8 @@ const id = (s) => s.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, "").toLowerCa
 
 const phase1 = {
   id: "phase1",
-  title: "Phase 1",
-  subtitle: "Foundations • SYS100 · NET100 · PYT100 · CRY100 · GRC100",
+  title: "Phase 1  —  Cybersecurity Foundations",
+  subtitle: "SYS100 · NET100 · PYT100 · CRY100 · GRC100",
   modules: [
     // ───────────────────────────────── SYS100
     {
