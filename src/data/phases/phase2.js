@@ -1,7 +1,520 @@
-const phase2 = {
+// src/data/phases/phase2.js
+// Phase 2 — SYS200, NET200, PYT200, CRY200, CTI100
+export default {
   id: "phase2",
-  title: "Phase 2",
-  subtitle: "Intermediate • SYS200 · NET200 · CRY200 · PYT200 · CTI100",
-  modules: []
+  title: "Phase 2 — Cybersecurity Intermediate Skills",
+  subtitle: "SYS200 • NET200 • PYT200 • CRY200 • CTI100",
+  modules: [
+    /* ===========================
+     * Module 1 — SYS200 (W1 D1–D3)
+     * =========================== */
+    {
+      id: "sys200",
+      badge: "SYS200",
+      title: "Module 1 (Week 1 Day 1–3) — SYS200",
+      sections: [
+        {
+          id: "sys200-d1",
+          title: "DAY 1: SYS200",
+          items: [
+            // Videos
+            { id: "sys200-m1-1-videos", type: "page", title: "Windows Overview (3 videos)", meta: { timeMin: 61 } },
+            { id: "sys200-m1-1-notes", type: "page", title: "📚 SYS200-M1-1 — Windows Overview #Notes" },
+            { id: "sys200-m1-2-videos", type: "page", title: "Windows Firewall, Filesystem & PowerShell (3 videos)", meta: { timeMin: 46 } },
+            { id: "sys200-m1-2-notes", type: "page", title: "📚 SYS200-M1-2 — Windows Firewall & PowerShell Basics #Notes" },
+          ],
+        },
+        {
+          id: "sys200-d1-slides",
+          title: "Slides",
+          items: [
+            { id: "sys200-m1-1-slides", type: "attachment", title: "SYS200-M1-1-Slides-Windows Overview.pdf" },
+            { id: "sys200-m1-2-slides", type: "attachment", title: "SYS200-M1-2-Slides-Windows Firewall–Powershell Basics.pdf" },
+          ],
+        },
+        {
+          id: "sys200-d1-assign",
+          title: "Assignments",
+          items: [
+            { id: "sys200-m1-1-a1", type: "assignment", title: "Infosec — Using Windows Features and Tools (Required)", meta: { points: 10 } },
+            { id: "sys200-m1-1-a2", type: "assignment", title: "Infosec — Configuring Windows Applications and Services", meta: { points: 10 } },
+            { id: "sys200-m1-1-a3", type: "assignment", title: "Infosec — User Profiles & Windows Registry (Required)", meta: { points: 10 } },
+            { id: "sys200-m1-2-a1", type: "assignment", title: "Infosec — Managing Files, Folders & Disks in Windows", meta: { points: 10 } },
+            { id: "sys200-m1-2-quiz", type: "quiz", title: "Quiz — Windows Command Line & PowerShell Basics (Lab)", meta: { points: 10 } },
+          ],
+        },
+
+        {
+          id: "sys200-d2",
+          title: "DAY 2: SYS200",
+          items: [
+            { id: "sys200-m2-1-videos", type: "page", title: "Windows Administration (2 videos)", meta: { timeMin: 50 } },
+            { id: "sys200-m2-1-notes", type: "page", title: "📚 SYS200-M2-1 — Windows System Administration #Notes" },
+            { id: "sys200-m2-2-videos", type: "page", title: "Directory Services (1 video)", meta: { timeMin: 14 } },
+            { id: "sys200-m2-2-notes", type: "page", title: "📚 SYS200-M2-2 — Directory Services #Notes" },
+          ],
+        },
+        {
+          id: "sys200-d2-slides",
+          title: "Slides",
+          items: [
+            { id: "sys200-m2-1-slides", type: "attachment", title: "SYS200-M2-1-Slides-Windows System Administration.pdf" },
+            { id: "sys200-m2-2-slides", type: "attachment", title: "SYS200-M2-2-Slides-Directory Services.pdf" },
+          ],
+        },
+        {
+          id: "sys200-d2-assign",
+          title: "Assignments",
+          items: [
+            { id: "sys200-m2-1-quiz", type: "quiz", title: "Quiz — Windows PowerShell (Lab)", meta: { points: 9 } },
+            { id: "sys200-m2-1-a1", type: "assignment", title: "Infosec — Using Windows Troubleshooting Tools (Required)", meta: { points: 10 } },
+            { id: "sys200-m2-2-quiz", type: "quiz", title: "Quiz — LDAP Install (Lab)", meta: { points: 9 } },
+          ],
+        },
+
+        {
+          id: "sys200-d3",
+          title: "DAY 3: SYS200",
+          items: [
+            { id: "sys200-m3-1-videos", type: "page", title: "Active Directory (2 videos)", meta: { timeMin: 43 } },
+            { id: "sys200-m3-1-notes", type: "page", title: "📚 SYS200-M3-1 — Active Directory, PAP/SPAP/CHAP #Notes" },
+          ],
+        },
+        {
+          id: "sys200-d3-slides",
+          title: "Slides",
+          items: [{ id: "sys200-m3-1-slides", type: "attachment", title: "SYS200-M3-1-Slides-Active Directory-PAP-SPAP-CHAP.pdf" }],
+        },
+        {
+          id: "sys200-d3-assign",
+          title: "Assignments",
+          items: [
+            { id: "sys200-m3-1-a1", type: "assignment", title: "Infosec — Configuring AD Accounts & Policies (Required)", meta: { points: 10 } },
+            { id: "sys200-m3-1-a2", type: "assignment", title: "Infosec — Using Active Directory in the Enterprise (Required)", meta: { points: 10 } },
+            { id: "sys200-m3-1-quiz", type: "quiz", title: "CSE SYS200 Module Quiz", meta: { points: 30 } },
+          ],
+        },
+      ],
+    },
+
+    /* Week 1 Survey */
+    {
+      id: "week1-survey",
+      title: "Week 1: Survey",
+      sections: [
+        {
+          id: "week1-survey-sec",
+          title: "Survey",
+          items: [{ id: "week1-survey-item", type: "quiz", title: "Week 1 Survey", meta: { points: 0 } }],
+        },
+      ],
+    },
+
+    /* ===========================
+     * Module 2 — NET200 (W1 D4–W2 D6)
+     * =========================== */
+    {
+      id: "net200",
+      badge: "NET200",
+      title: "Module 2 (Week 1 Day 4 – Week 2 Day 6) — NET200",
+      sections: [
+        {
+          id: "net200-m1",
+          title: "NET200 — M1",
+          items: [
+            { id: "net200-m1-1-v1", type: "page", title: "Subnetting (4 videos)", meta: { timeMin: 36 } },
+            { id: "net200-m1-1-v2", type: "page", title: "CIDR (3 videos)", meta: { timeMin: 30 } },
+            { id: "net200-m1-1-notes", type: "page", title: "📚 NET200-M1-1 — IP Subnetting #Notes" },
+            { id: "net200-m1-2-v1", type: "page", title: "Routing Technology (4 videos)", meta: { timeMin: 31 } },
+            { id: "net200-m1-2-v2", type: "page", title: "Firewalls & NAT (4 videos)", meta: { timeMin: 42 } },
+            { id: "net200-m1-2-notes", type: "page", title: "📚 NET200-M1-2 — Internet Routing #Notes" },
+          ],
+        },
+        {
+          id: "net200-m1-slides",
+          title: "Slides & Resources",
+          items: [
+            { id: "net200-m1-1-slides", type: "attachment", title: "NET200-M1-1-Slides-IP Subnetting.pdf" },
+            { id: "net200-m1-1-res", type: "attachment", title: "Subnetting Primer (Resource)" },
+            { id: "net200-m1-2-slides", type: "attachment", title: "NET200-M1-2-Slides-Internet Routing.pdf" },
+            { id: "net200-m1-vlan-pcap", type: "attachment", title: "vlan.pcap" },
+          ],
+        },
+        {
+          id: "net200-m1-assign",
+          title: "Assignments",
+          items: [
+            { id: "net200-m1-a1", type: "quiz", title: "Lab — HW IP Addressing", meta: { points: 36 } },
+            { id: "net200-m1-a2", type: "quiz", title: "Advanced Lab — Bruce Wayne Problem (Challenging!)", meta: { points: 18 } },
+            { id: "net200-m1-a3", type: "assignment", title: "Lab — Firewall Configuration pfSense (Required)", meta: { points: 10 } },
+            { id: "net200-m1-a4", type: "quiz", title: "Quiz — Firewall Configuration VyOS (Required)", meta: { points: 12 } },
+          ],
+        },
+
+        {
+          id: "net200-m2",
+          title: "NET200 — M2",
+          items: [
+            { id: "net200-m2-1-v1", type: "page", title: "Web & HTTP/HTTPS (4 videos)", meta: { timeMin: 38 } },
+            { id: "net200-m2-1-v2", type: "page", title: "URLs & DNS (6 videos)", meta: { timeMin: 51 } },
+            { id: "net200-m2-1-notes", type: "page", title: "📚 NET200-M2-1 — DNS & Web Connections #Notes" },
+            { id: "net200-m2-2-v1", type: "page", title: "VPNs (8 videos)", meta: { timeMin: 61 } },
+            { id: "net200-m2-2-v2", type: "page", title: "IDS & IPS (3 videos)", meta: { timeMin: 27 } },
+            { id: "net200-m2-2-notes", type: "page", title: "📚 NET200-M2-2 — VPNs & IDS #Notes" },
+          ],
+        },
+        {
+          id: "net200-m2-slides",
+          title: "Slides",
+          items: [
+            { id: "net200-m2-1-slides", type: "attachment", title: "NET200-M2-1-Slides-DNS-Web-Connections.pdf" },
+            { id: "net200-m2-2-slides", type: "attachment", title: "NET200-M2-2-Slides-VPNs and IDS.pdf" },
+          ],
+        },
+        {
+          id: "net200-m2-assign",
+          title: "Assignments",
+          items: [
+            { id: "net200-m2-1-quiz", type: "quiz", title: "Quiz — Internet Registries (Lab)", meta: { points: 10 } },
+            { id: "net200-m2-2-a1", type: "assignment", title: "Infosec — Configure VPN with OpenVPN (Required)", meta: { points: 10 } },
+            { id: "net200-m2-2-a2", type: "assignment", title: "Infosec — Intrusion Detection using Snort (Required)", meta: { points: 10 } },
+          ],
+        },
+
+        {
+          id: "net200-m3",
+          title: "NET200 — M3",
+          items: [
+            { id: "net200-m3-1-videos", type: "page", title: "Port Mirroring, Sniffing & Forwarding (6 videos)", meta: { timeMin: 45 } },
+            { id: "net200-m3-1-notes", type: "page", title: "📚 NET200-M3-1 — Port Mirroring & Sniffing #Notes" },
+          ],
+        },
+        {
+          id: "net200-m3-slides",
+          title: "Slides",
+          items: [{ id: "net200-m3-1-slides", type: "attachment", title: "NET200-M3-1-Slides-Port Mirroring and Sniffing.pdf" }],
+        },
+        {
+          id: "net200-m3-assign",
+          title: "Assignments",
+          items: [{ id: "net200-m3-1-quiz", type: "quiz", title: "Quiz — Port Mirroring (Lab) (Required)", meta: { points: 9 } }],
+        },
+
+        {
+          id: "net200-assessment",
+          title: "Assessment",
+          items: [{ id: "net200-m4-1-quiz", type: "quiz", title: "NET200-M4-1 — Phase Assessment", meta: { points: 30 } }],
+        },
+      ],
+    },
+
+    /* Milestone 2 Survey */
+    {
+      id: "milestone2-survey",
+      title: "Milestone 2: Survey",
+      sections: [
+        { id: "milestone2-survey-sec", title: "Survey", items: [{ id: "milestone2-survey-item", type: "quiz", title: "Survey", meta: { points: 0 } }] },
+      ],
+    },
+
+    /* ===========================
+     * Module 3 — PYT200 (W2 D7–D9)
+     * =========================== */
+    {
+      id: "pyt200",
+      badge: "PYT200",
+      title: "Module 3 (Week 2 Day 7–9) — PYT200",
+      sections: [
+        {
+          id: "pyt200-m1",
+          title: "PYT200 — M1",
+          items: [
+            { id: "pyt200-m1-1-v1", type: "page", title: "Tuples & Lists (2 videos)", meta: { timeMin: 25 } },
+            { id: "pyt200-m1-1-notes", type: "page", title: "📚 PYT200-M1-1 — Tuples & Lists #Notes" },
+            { id: "pyt200-m1-2-v1", type: "page", title: "Dictionaries (4 videos)", meta: { timeMin: 39 } },
+            { id: "pyt200-m1-2-notes", type: "page", title: "📚 PYT200-M1-2 — Dictionaries #Notes" },
+          ],
+        },
+        {
+          id: "pyt200-m1-slides",
+          title: "Slides",
+          items: [
+            { id: "pyt200-m1-1-slides", type: "attachment", title: "PYT200-M1-1-Slides-Tuples-Lists.pdf" },
+            { id: "pyt200-m1-2-slides", type: "attachment", title: "PYT200-M1-2-Slides-Dictionaries.pdf" },
+          ],
+        },
+        {
+          id: "pyt200-m1-assign",
+          title: "Assignments",
+          items: [
+            { id: "pyt200-m1-1-quiz", type: "quiz", title: "Quiz — Tuples & Lists (Lab)", meta: { points: 10 } },
+            { id: "pyt200-m1-2-quiz", type: "quiz", title: "Quiz — Dictionaries (Lab)", meta: { points: 10 } },
+          ],
+        },
+
+        {
+          id: "pyt200-m2",
+          title: "PYT200 — M2",
+          items: [
+            { id: "pyt200-m2-1-v1", type: "page", title: "Working with Files (5 videos)", meta: { timeMin: 37 } },
+            { id: "pyt200-m2-1-v2", type: "page", title: "String Formatting & Files (5 videos)", meta: { timeMin: 51 } },
+            { id: "pyt200-m2-1-v3", type: "page", title: "Python Logging (5 videos)", meta: { timeMin: 25 } },
+            { id: "pyt200-m2-1-notes", type: "page", title: "📚 PYT200-M2-1 — Files, Print Commands, Logging #Notes" },
+            { id: "pyt200-m2-2-v1", type: "page", title: "User Functions, Modules & Packages (5 videos)", meta: { timeMin: 24 } },
+            { id: "pyt200-m2-2-notes", type: "page", title: "📚 PYT200-M2-2 — User Functions, Modules & Packages #Notes" },
+          ],
+        },
+        {
+          id: "pyt200-m2-slides",
+          title: "Slides",
+          items: [
+            { id: "pyt200-m2-1-slides", type: "attachment", title: "PYT200-M2-1-Slides-Files-Print Commands-Logging.pdf" },
+            { id: "pyt200-m2-2-slides", type: "attachment", title: "PYT200-M2-2-Slides-User Functions-Modules-Packages.pdf" },
+          ],
+        },
+        {
+          id: "pyt200-m2-assign",
+          title: "Assignments",
+          items: [
+            { id: "pyt200-m2-1-quiz", type: "quiz", title: "Quiz — File Operations & Logging (Lab)", meta: { points: 10 } },
+            { id: "pyt200-m2-2-quiz", type: "quiz", title: "Quiz — Functions, Modules & Packages (Lab)", meta: { points: 10 } },
+          ],
+        },
+
+        {
+          id: "pyt200-m3",
+          title: "PYT200 — M3",
+          items: [
+            { id: "pyt200-m3-1-v1", type: "page", title: "Math & Conversions (3 videos)", meta: { timeMin: 28 } },
+            { id: "pyt200-m3-1-v2", type: "page", title: "Input Validation (3 videos)", meta: { timeMin: 18 } },
+            { id: "pyt200-m3-1-notes", type: "page", title: "📚 PYT200-M3-1 — Libraries, Math Functions & SDLC #Notes" },
+          ],
+        },
+        {
+          id: "pyt200-m3-slides",
+          title: "Slides",
+          items: [{ id: "pyt200-m3-1-slides", type: "attachment", title: "PYT200-M3-1-Slides-Libraries-Math Functions-SDLC.pdf" }],
+        },
+        {
+          id: "pyt200-m3-assign",
+          title: "Assignments",
+          items: [
+            { id: "pyt200-m3-1-quiz-db", type: "quiz", title: "Quiz — Database Project (Lab)", meta: { points: 10 } },
+            { id: "pyt200-module-quiz", type: "quiz", title: "CSE PYT200 Module Quiz", meta: { points: 30 } },
+          ],
+        },
+      ],
+    },
+
+    /* Week 3 Survey */
+    {
+      id: "week3-survey",
+      title: "Week 3: Survey",
+      sections: [
+        { id: "week3-survey-sec", title: "Survey", items: [{ id: "week3-survey-item", type: "quiz", title: "Survey", meta: { points: 0 } }] },
+      ],
+    },
+
+    /* ===========================
+     * Module 4 — CRY200 (W2 D10–W3 D12)
+     * =========================== */
+    {
+      id: "cry200",
+      badge: "CRY200",
+      title: "Module 4 (Week 2 Day 10 – Week 3 Day 12) — CRY200",
+      sections: [
+        {
+          id: "cry200-m1",
+          title: "CRY200 — M1",
+          items: [
+            { id: "cry200-m1-1-v", type: "page", title: "Asymmetric Encryption (1 video)", meta: { timeMin: 11 } },
+            { id: "cry200-m1-1-notes", type: "page", title: "📚 CRY200-M1-1 — Asymmetric #Notes" },
+            { id: "cry200-m1-2-v", type: "page", title: "RSA Algorithm (1 video)", meta: { timeMin: 12 } },
+            { id: "cry200-m1-2-notes", type: "page", title: "📚 CRY200-M1-2 — RSA #Notes" },
+          ],
+        },
+        {
+          id: "cry200-m1-slides",
+          title: "Slides",
+          items: [
+            { id: "cry200-m1-1-slides", type: "attachment", title: "CRY200-M1-1-Slides-Asymmetric.pdf" },
+            { id: "cry200-m1-2-slides", type: "attachment", title: "CRY200-M1-2-Slides-RSA.pdf" },
+          ],
+        },
+        {
+          id: "cry200-m1-assign",
+          title: "Assignments",
+          items: [
+            { id: "cry200-m1-1-quiz", type: "quiz", title: "Quiz — Cert Hunt (Lab) (Required)", meta: { points: 9 } },
+            { id: "cry200-m1-2-quiz", type: "quiz", title: "Quiz — Public & Private Keys (Lab) (Required)", meta: { points: 10 } },
+          ],
+        },
+
+        {
+          id: "cry200-m2",
+          title: "CRY200 — M2",
+          items: [
+            { id: "cry200-m2-1-v", type: "page", title: "Certificates (2 videos)", meta: { timeMin: 18 } },
+            { id: "cry200-m2-1-notes", type: "page", title: "📚 CRY200-M2-1 — Certificates #Notes" },
+            { id: "cry200-m2-2-v", type: "page", title: "TLS / SSL (2 videos)", meta: { timeMin: 11 } },
+            { id: "cry200-m2-2-notes", type: "page", title: "📚 CRY200-M2-2 — SSL / TLS #Notes" },
+            { id: "cry200-discussion", type: "page", title: "📚 Discussion — Using AI in Asymmetric/Quantum Encryption" },
+          ],
+        },
+        {
+          id: "cry200-m2-slides",
+          title: "Slides",
+          items: [
+            { id: "cry200-m2-1-slides", type: "attachment", title: "CRY200-M2-1-Slides-Certificates.pdf" },
+            { id: "cry200-m2-2-slides", type: "attachment", title: "CRY200-M2-2-Slides-SSL-TLS.pdf" },
+          ],
+        },
+        {
+          id: "cry200-m2-assign",
+          title: "Assignments",
+          items: [
+            { id: "cry200-m2-1-quiz", type: "quiz", title: "Quiz — CSRs (Lab) (Required)", meta: { points: 12 } },
+            { id: "cry200-m2-2-quiz", type: "quiz", title: "Quiz — Install Apache Certs (Lab) (Required)", meta: { points: 9 } },
+          ],
+        },
+
+        {
+          id: "cry200-m3",
+          title: "CRY200 — M3",
+          items: [
+            { id: "cry200-m3-1-v", type: "page", title: "SSH (1 video)", meta: { timeMin: 9 } },
+            { id: "cry200-m3-1-notes", type: "page", title: "📚 CRY200-M3-1 — SSH #Notes" },
+          ],
+        },
+        {
+          id: "cry200-m3-slides",
+          title: "Slides",
+          items: [{ id: "cry200-m3-1-slides", type: "attachment", title: "CRY200-M3-1-Slides-SSH.pdf" }],
+        },
+        {
+          id: "cry200-m3-assign",
+          title: "Assignments",
+          items: [
+            { id: "cry200-m3-1-quiz", type: "quiz", title: "Quiz — SSH Certificates (Lab) (Required)", meta: { points: 9 } },
+            { id: "cry200-phase-assessment", type: "quiz", title: "CRY200-M4-1 — Phase Assessment", meta: { points: 30 } },
+          ],
+        },
+      ],
+    },
+
+    /* Module 4: Survey */
+    {
+      id: "module4-survey",
+      title: "Module 4: Survey",
+      sections: [
+        { id: "module4-survey-sec", title: "Survey", items: [{ id: "module4-survey-item", type: "quiz", title: "Survey", meta: { points: 0 } }] },
+      ],
+    },
+
+    /* ===========================
+     * Module 5 — CTI100 (W3 D13–D15)
+     * =========================== */
+    {
+      id: "cti100",
+      badge: "CTI100",
+      title: "Module 5 (Week 3 Day 13–15) — CTI100",
+      sections: [
+        {
+          id: "cti100-m1",
+          title: "CTI100 — M1",
+          items: [
+            { id: "cti100-m1-1-v1", type: "page", title: "CTI Intro to Strategy (6 videos)", meta: { timeMin: 23 } },
+            { id: "cti100-m1-1-v2", type: "page", title: "Sun Tzu & Cybersecurity Strategy (6 videos)", meta: { timeMin: 26 } },
+            { id: "cti100-m1-1-v3", type: "page", title: "National Security Strategy (5 videos)", meta: { timeMin: 15 } },
+            { id: "cti100-m1-1-v4", type: "page", title: "Strategic Leadership (2 videos)", meta: { timeMin: 20 } },
+            { id: "cti100-m1-1-notes", type: "page", title: "📚 CTI100-M1-1 — Strategy #Notes" },
+            { id: "cti100-m1-2-v1", type: "page", title: "Intro to Operational Design (4 videos)", meta: { timeMin: 33 } },
+            { id: "cti100-m1-2-v2", type: "page", title: "Sun Tzu on Development of Strategy (4 videos)", meta: { timeMin: 26 } },
+            { id: "cti100-m1-2-v3", type: "page", title: "Apply Operational Design to Business/Security (4 videos)", meta: { timeMin: 47 } },
+            { id: "cti100-m1-2-notes", type: "page", title: "📚 CTI100-M1-2 — Operational Design #Notes" },
+          ],
+        },
+        {
+          id: "cti100-m1-slides",
+          title: "Slides",
+          items: [
+            { id: "cti100-m1-1-slides", type: "attachment", title: "CTI100-M1-1-Slides-Strategy.pdf" },
+            { id: "cti100-m1-2-slides", type: "attachment", title: "CTI100-M1-2-Slides-Operational Design.pdf" },
+          ],
+        },
+        {
+          id: "cti100-m1-assign",
+          title: "Assignments",
+          items: [
+            { id: "cti100-m1-1-quiz", type: "quiz", title: "Quiz — Introduction to Strategy (Required)", meta: { points: 20 } },
+            { id: "cti100-m1-2-quiz", type: "quiz", title: "Quiz — Introduction to Operational Design (Required)", meta: { points: 20 } },
+          ],
+        },
+
+        {
+          id: "cti100-m2",
+          title: "CTI100 — M2",
+          items: [
+            { id: "cti100-m2-1-v1", type: "page", title: "Intro to Information Warfare (5 videos)", meta: { timeMin: 25 } },
+            { id: "cti100-m2-1-v2", type: "page", title: "The Enemy as a System (4 videos)", meta: { timeMin: 19 } },
+            { id: "cti100-m2-1-v3", type: "page", title: "The Information Environment (3 videos)", meta: { timeMin: 25 } },
+            { id: "cti100-m2-1-notes", type: "page", title: "📚 CTI100-M2-1 — Information Warfare #Notes" },
+            { id: "cti100-m2-2-v1", type: "page", title: "Threat Intelligence (6 videos)", meta: { timeMin: 48 } },
+            { id: "cti100-m2-2-v2", type: "page", title: "The Intelligence Cycle (3 videos)", meta: { timeMin: 23 } },
+            { id: "cti100-m2-2-v3", type: "page", title: "Developing Threat Intelligence (4 videos)", meta: { timeMin: 35 } },
+            { id: "cti100-m2-2-notes", type: "page", title: "📚 CTI100-M2-2 — Threat Intelligence #Notes" },
+          ],
+        },
+        {
+          id: "cti100-m2-slides",
+          title: "Slides",
+          items: [
+            { id: "cti100-m2-1-slides", type: "attachment", title: "CTI100-M2-1-Slides-Info War.pdf" },
+            { id: "cti100-m2-2-slides", type: "attachment", title: "CTI100-M2-2-Slides-Threat Intelligence.pdf" },
+          ],
+        },
+        {
+          id: "cti100-m2-assign",
+          title: "Assignments",
+          items: [
+            { id: "cti100-m2-1-quiz", type: "quiz", title: "Quiz — Information Warfare (Required)", meta: { points: 21 } },
+            { id: "cti100-m2-2-quiz", type: "quiz", title: "Quiz — Threat Intelligence (Required)", meta: { points: 17 } },
+          ],
+        },
+
+        {
+          id: "cti100-m3",
+          title: "CTI100 — M3",
+          items: [
+            { id: "cti100-m3-1-v1", type: "page", title: "Sources & Methods (4 videos)", meta: { timeMin: 25 } },
+            { id: "cti100-m3-1-v2", type: "page", title: "Threat Intel Sources & Methods (5 videos)", meta: { timeMin: 41 } },
+            { id: "cti100-m3-1-v3", type: "page", title: "STIX, TAXII & Maltego (4 videos)", meta: { timeMin: 29 } },
+            { id: "cti100-m3-1-notes", type: "page", title: "📚 CTI100-M3-1 — Sources & Methods #Notes" },
+            { id: "cti100-m3-2-v1", type: "page", title: "Intro to Data Analysis (4 videos)", meta: { timeMin: 27 } },
+            { id: "cti100-m3-2-v2", type: "page", title: "Data Evaluation (6 videos)", meta: { timeMin: 38 } },
+            { id: "cti100-m3-2-v3", type: "page", title: "Induction vs Deduction (3 videos)", meta: { timeMin: 20 } },
+            { id: "cti100-m3-2-v4", type: "page", title: "Theories & Hypotheses (4 videos)", meta: { timeMin: 25 } },
+            { id: "cti100-m3-2-notes", type: "page", title: "📚 CTI100-M3-2 — Data Analysis #Notes" },
+          ],
+        },
+        {
+          id: "cti100-m3-slides",
+          title: "Slides",
+          items: [
+            { id: "cti100-m3-1-slides", type: "attachment", title: "CTI100-M3-1-Slides-Sources and Methods.pdf" },
+            { id: "cti100-m3-2-slides", type: "attachment", title: "CTI100-M3-2-Slides-Data Analysis.pdf" },
+          ],
+        },
+        {
+          id: "cti100-m3-assign",
+          title: "Assignments",
+          items: [
+            { id: "cti100-m3-1-quiz", type: "quiz", title: "Quiz — Maltego (Sources & Methods)", meta: { points: 13 } },
+            { id: "cti100-m3-2-quiz", type: "quiz", title: "Quiz — Data Analysis", meta: { points: 20 } },
+            { id: "cti100-phase-assessment", type: "quiz", title: "CTI100-M4-1 — Phase Assessment", meta: { points: 30 } },
+          ],
+        },
+      ],
+    },
+  ],
 };
-export default phase2;
