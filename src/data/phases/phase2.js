@@ -97,19 +97,6 @@ export default {
       ],
     },
 
-    /* Week 1 Survey */
-    {
-      id: "week1-survey",
-      title: "Week 1: Survey",
-      sections: [
-        {
-          id: "week1-survey-sec",
-          title: "Survey",
-          items: [{ id: "week1-survey-item", type: "quiz", title: "Week 1 Survey", meta: { points: 0 } }],
-        },
-      ],
-    },
-
     /* ===========================
      * Module 2 — NET200 (W1 D4–W2 D6)
      * =========================== */
@@ -208,15 +195,6 @@ export default {
       ],
     },
 
-    /* Milestone 2 Survey */
-    {
-      id: "milestone2-survey",
-      title: "Milestone 2: Survey",
-      sections: [
-        { id: "milestone2-survey-sec", title: "Survey", items: [{ id: "milestone2-survey-item", type: "quiz", title: "Survey", meta: { points: 0 } }] },
-      ],
-    },
-
     /* ===========================
      * Module 3 — PYT200 (W2 D7–D9)
      * =========================== */
@@ -306,15 +284,6 @@ export default {
       ],
     },
 
-    /* Week 3 Survey */
-    {
-      id: "week3-survey",
-      title: "Week 3: Survey",
-      sections: [
-        { id: "week3-survey-sec", title: "Survey", items: [{ id: "week3-survey-item", type: "quiz", title: "Survey", meta: { points: 0 } }] },
-      ],
-    },
-
     /* ===========================
      * Module 4 — CRY200 (W2 D10–W3 D12)
      * =========================== */
@@ -399,15 +368,6 @@ export default {
             { id: "cry200-phase-assessment", type: "quiz", title: "CRY200-M4-1 — Phase Assessment", meta: { points: 30 } },
           ],
         },
-      ],
-    },
-
-    /* Module 4: Survey */
-    {
-      id: "module4-survey",
-      title: "Module 4: Survey",
-      sections: [
-        { id: "module4-survey-sec", title: "Survey", items: [{ id: "module4-survey-item", type: "quiz", title: "Survey", meta: { points: 0 } }] },
       ],
     },
 
