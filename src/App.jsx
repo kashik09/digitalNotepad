@@ -3,6 +3,7 @@ import { starter } from "./data/starter";
 import { LS_KEY, minutesToHMS } from "./utils/format";
 import { ModuleBlock } from "./components/ModuleBlock";
 import { Icon } from "./components/Icon";
+import { loadPhase } from "./data/loadPhase";
 
 // Overview screen
 import Overview from "./components/Overview";
@@ -29,20 +30,27 @@ export default function App() {
   const [showAdd, setShowAdd] = useState(false); // reserved for quick-add UI
   const [view, setView] = useState("overview");  // "overview" | "notes"
 
+// 🚀 Lazy-load the selected phase file the first time it's opened
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved.data) setData(saved.data);
-      if (saved.store) setStore(saved.store);
-      if (saved.phaseId) setPhaseId(saved.phaseId);
-    } catch {}
-  }, []);
+    const p = data.phases.find((x) => x.id === phaseId);
+    // if this phase already has modules, nothing to load
+    if (!p || (p.modules && p.modules.length > 0)) return;
 
-  useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify({ data, store, phaseId }));
-  }, [data, store, phaseId]);
+    let cancelled = false;
+    loadPhase(phaseId)
+      .then((full) => {
+        if (cancelled) return;
+        setData((prev) => ({
+          ...prev,
+          phases: prev.phases.map((x) => (x.id === phaseId ? full : x)),
+        }));
+      })
+      .catch((e) => console.error("Failed to load phase", phaseId, e));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [phaseId, data.phases]);
 
   const current = useMemo(
     () => data.phases.find((p) => p.id === phaseId) || data.phases[0],
