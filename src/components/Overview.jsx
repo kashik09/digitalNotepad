@@ -1,11 +1,11 @@
-// src/components/Overview.jsx
 import React from "react";
 
 function Card({ children }) {
   return <div className="rounded-xl border bg-white p-4 shadow-sm">{children}</div>;
 }
 
-export default function Overview({ data }) {
+// now accepts onJumpToPhase so the course pills can navigate
+export default function Overview({ data, onJumpToPhase }) {
   const { intro, note, phaseCards, courseGrid, courses } = data;
 
   return (
@@ -36,13 +36,28 @@ export default function Overview({ data }) {
         </div>
       </section>
 
+      {/* Courses → Phase buttons */}
       <section>
         <h2 className="text-sm font-semibold text-gray-600 mb-2">Courses at a glance</h2>
         <Card>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-sm">
-            {courseGrid.flat().map((code, i) => (
-              <div key={i} className="rounded-lg border px-2 py-1 text-center">{code}</div>
-            ))}
+            {courseGrid.flat().map((code, i) => {
+              // grid is 5 columns (Phases 1..5). Row-major flatten ⇒ column index = i % 5.
+              const phaseNo = (i % 5) + 1;
+              const phaseId = `phase${phaseNo}`;
+              return (
+                <button
+                  key={`${code}-${i}`}
+                  type="button"
+                  onClick={() => onJumpToPhase?.(phaseId)}
+                  className="rounded-full border px-3 py-2 text-center hover:bg-gray-50 active:scale-[0.99] transition shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  title={`Go to Phase ${phaseNo}`}
+                >
+                  <div className="font-medium">{code}</div>
+                  <div className="text-[11px] text-gray-500">Phase {phaseNo}</div>
+                </button>
+              );
+            })}
           </div>
         </Card>
       </section>

@@ -4,7 +4,7 @@ import { LS_KEY, minutesToHMS } from "./utils/format";
 import { ModuleBlock } from "./components/ModuleBlock";
 import { Icon } from "./components/Icon";
 
-// 👇 NEW: Overview screen
+// Overview screen
 import Overview from "./components/Overview";
 import { overview } from "./data/overview";
 
@@ -26,8 +26,8 @@ export default function App() {
   const [store, setStore] = useState({ items: {} });
   const [phaseId, setPhaseId] = useState(starter.phases[0].id);
   const [q, setQ] = useState("");
-  const [showAdd, setShowAdd] = useState(false); // (kept for later quick-add UI)
-  const [view, setView] = useState("overview"); // 👈 NEW: "overview" | "notes"
+  const [showAdd, setShowAdd] = useState(false); // reserved for quick-add UI
+  const [view, setView] = useState("overview");  // "overview" | "notes"
 
   useEffect(() => {
     try {
@@ -160,7 +160,10 @@ export default function App() {
       {/* ===== Body: Overview or Notes ===== */}
       <main className="max-w-6xl mx-auto px-4 py-4">
         {view === "overview" ? (
-          <Overview data={overview} />
+          <Overview
+            data={overview}
+            onJumpToPhase={(pid) => { setPhaseId(pid); setView("notes"); }}
+          />
         ) : (
           <>
             {/* Phase cards */}
