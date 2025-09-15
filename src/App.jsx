@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { starter } from "./data/starter";
 import { LS_KEY, minutesToHMS } from "./utils/format";
 import { ModuleBlock } from "./components/ModuleBlock";
-import { Icon } from "./components/Icon"; // ✅ needed for search icon + buttons
+import { Icon } from "./components/Icon";
 
-// --- helpers ---
 function filterModules(modules, term) {
   const q = term.trim().toLowerCase();
   if (!q) return modules;
@@ -23,7 +22,7 @@ export default function App() {
   const [store, setStore] = useState({ items: {} });
   const [phaseId, setPhaseId] = useState(starter.phases[0].id);
   const [q, setQ] = useState("");
-  const [showAdd, setShowAdd] = useState(false); // ✅ quick add toggle
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
     try {
@@ -60,13 +59,11 @@ export default function App() {
     return { total, done, pct: total ? (done / total) * 100 : 0, time, pts };
   }, [current, store]);
 
-  // ✅ derived filtered list
   const filteredModules = useMemo(
     () => filterModules(current.modules, q),
     [current, q]
   );
 
-  // ✅ quick add item
   function addQuickItem() {
     const title = document.getElementById("quickTitle")?.value?.trim();
     const type = document.getElementById("quickType")?.value || "page";
@@ -84,7 +81,6 @@ export default function App() {
     document.getElementById("quickTitle").value = "";
   }
 
-  // ✅ export/import
   function doExport() {
     const blob = new Blob([JSON.stringify({ data, store }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -133,64 +129,40 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-4 grid grid-cols-1 md:grid-cols-[240px,1fr] gap-4">
-        <aside className="md:sticky md:top-[60px] h-max">
-          <div className="bg-white border rounded-2xl p-3 shadow-sm">
-            <div className="text-xs font-semibold text-gray-600 mb-2">Phases</div>
-            <div className="space-y-2">
-              {data.phases.map((p) => {
-                let total = 0, done = 0;
-                p.modules.forEach((m) =>
-                  m.sections.forEach((s) =>
-                    s.items.forEach((it) => {
-                      total++;
-                      if (store.items[it.id]?.done) done++;
-                    })
-                  )
-                );
-                const pct = total ? Math.round((done / total) * 100) : 0;
-                const active = p.id === phaseId;
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => setPhaseId(p.id)}
-                    className={`w-full text-left px-3 py-2 rounded-xl border ${active ? "bg-blue-50 border-blue-200" : "bg-white hover:bg-gray-50"}`}
-                  >
-                    <div className="text-sm font-semibold">
-                      {p.title} <span className="text-xs text-gray-500">• {pct}%</span>
-                    </div>
-                    <div className="text-xs text-gray-500">{p.subtitle || ""}</div>
-                  </button>
-                );
-              })}
-            </div>
+      <main className="max-w-6xl mx-auto px-4 py-4 space-y-4">
+        <section aria-label="Phases">
+          <h2 className="text-xs font-semibold text-gray-600 mb-2">Phases</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {data.phases.map((p) => {
+              let total = 0, done = 0;
+              p.modules.forEach((m) =>
+                m.sections.forEach((s) =>
+                  s.items.forEach((it) => {
+                    total++;
+                    if (store.items[it.id]?.done) done++;
+                  })
+                )
+              );
+              const pct = total ? Math.round((done / total) * 100) : 0;
+              const active = p.id === phaseId;
 
-            {/* ✅ Quick add panel */}
-            <div className="mt-4 border-t pt-3">
-              <button
-                onClick={() => setShowAdd((s) => !s)}
-                className="text-sm px-2 py-1.5 rounded-lg border w-full flex items-center justify-center gap-1 hover:bg-gray-50"
-              >
-                <Icon name="plus" /> Quick add item
-              </button>
-              {showAdd && (
-                <div className="mt-2 flex flex-col gap-2">
-                  <input id="quickTitle" placeholder="Title…" className="text-sm px-2 py-1.5 rounded-lg border" />
-                  <select id="quickType" className="text-sm px-2 py-1.5 rounded-lg border">
-                    <option value="page">Page</option>
-                    <option value="video">Video</option>
-                    <option value="attachment">Attachment</option>
-                    <option value="quiz">Quiz</option>
-                    <option value="note">Note</option>
-                  </select>
-                  <button onClick={addQuickItem} className="text-sm px-2 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-                    Add
-                  </button>
-                </div>
-              )}
-            </div>
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setPhaseId(p.id)}
+                  className={[
+                    "text-left rounded-xl border bg-white p-3 shadow-sm hover:shadow transition",
+                    active ? "ring-2 ring-blue-400 border-blue-200" : "border-gray-200"
+                  ].join(" ")}
+                >
+                  <div className="text-sm font-semibold">{p.title}</div>
+                  <div className="text-xs text-gray-500">{p.subtitle || ""}</div>
+                  <div className="mt-2 text-xs text-gray-600">{pct}% complete</div>
+                </button>
+              );
+            })}
           </div>
-        </aside>
+        </section>
 
         <section>
           <div className="flex items-center justify-between mb-3">
@@ -211,12 +183,16 @@ export default function App() {
             </div>
           </div>
 
-          {/* filtered render */}
-          {filteredModules.length === 0 ? (
-            <div className="text-sm text-gray-500">No results. Try a different search.</div>
+          {(current.modules || []).length === 0 ? (
+            <div className="text-sm text-gray-500">No modules yet. Add later.</div>
           ) : (
-            filteredModules.map((mod) => (
-              <ModuleBlock key={mod.id} module={mod} store={store} setStore={setStore} />
+            current.modules.map((mod) => (
+              <ModuleBlock
+                key={mod.id}
+                module={mod}
+                store={store}
+                setStore={setStore}
+              />
             ))
           )}
         </section>
