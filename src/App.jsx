@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { HashRouter, Routes, Route, useNavigate, useParams, Link } from "react-router-dom";
 
 import { starter } from "./data/starter";
-import { LS_KEY, minutesToHMS } from "./utils/format";
+import { LS_KEY } from "./utils/format"; // removed minutesToHMS
 import { ModuleBlock } from "./components/ModuleBlock";
 import { Icon } from "./components/Icon";
 import { loadPhase } from "./data/loadPhase";
@@ -71,45 +71,19 @@ function HomeView({
     [data, phaseId]
   );
 
+  // % only for phase
   const phaseProgress = useMemo(() => {
-    let total = 0, done = 0, time = 0, pts = 0;
+    let total = 0, done = 0;
     (current.modules || []).forEach((m) =>
       (m.sections || []).forEach((s) =>
         (s.items || []).forEach((it) => {
           total++;
           if (store.items[it.id]?.done) done++;
-          if (it.meta?.timeMin) time += it.meta.timeMin;
-          if (it.meta?.points) pts += it.meta.points;
         })
       )
     );
-    return { total, done, pct: total ? (done / total) * 100 : 0, time, pts };
+    return { total, done, pct: total ? (done / total) * 100 : 0 };
   }, [current, store]);
-
-  const visibleModules = useMemo(
-    () => filterModules(current.modules || [], q),
-    [current, q]
-  );
-
-  function doExport() {
-    const blob = new Blob([JSON.stringify({ data, store }, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `cyber-notes-${new Date().toISOString().slice(0,10)}.json`; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-  }
-  function doImport(e) {
-    const file = e.target.files?.[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const obj = JSON.parse(String(reader.result));
-        if (obj.data?.phases) setData(obj.data);
-        if (obj.store?.items) setStore(obj.store);
-      } catch { alert("Invalid JSON file"); }
-    };
-    reader.readAsText(file);
-  }
 
   const navigate = useNavigate();
 
@@ -149,12 +123,34 @@ function HomeView({
                     className="pl-7 pr-3 py-2 rounded-lg border bg-white w-56 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
-                <button onClick={doExport} className="px-2.5 py-2 rounded-lg border text-sm hover:bg-gray-100 flex items-center gap-1">
+                <button onClick={() => {
+                  const blob = new Blob([JSON.stringify({ data, store }, null, 2)], { type: "application/json" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url; a.download = `cyber-notes-${new Date().toISOString().slice(0,10)}.json`; a.click();
+                  setTimeout(() => URL.revokeObjectURL(url), 1500);
+                }} className="px-2.5 py-2 rounded-lg border text-sm hover:bg-gray-100 flex items-center gap-1">
                   Export
                 </button>
                 <label className="px-2.5 py-2 rounded-lg border text-sm hover:bg-gray-100 flex items-center gap-1 cursor-pointer">
                   Import
-                  <input type="file" accept="application/json" className="hidden" onChange={doImport} />
+                  <input
+                    type="file"
+                    accept="application/json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]; if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        try {
+                          const obj = JSON.parse(String(reader.result));
+                          if (obj.data?.phases) setData(obj.data);
+                          if (obj.store?.items) setStore(obj.store);
+                        } catch { alert("Invalid JSON file"); }
+                      };
+                      reader.readAsText(file);
+                    }}
+                  />
                 </label>
               </>
             )}
@@ -215,19 +211,14 @@ function HomeView({
                   <div className="text-sm text-gray-500">{current.subtitle || ""}</div>
                 </div>
                 <div className="flex gap-2 text-xs">
+                  {/* % only */}
                   <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                    {minutesToHMS(phaseProgress.time)}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                    {phaseProgress.pts} pts
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                    {phaseProgress.done}/{phaseProgress.total} • {Math.round(phaseProgress.pct)}%
+                    {Math.round(phaseProgress.pct)}%
                   </span>
                 </div>
               </div>
 
-              {/* 🔘 Module buttons only (no heavy content here) */}
+              {/* 🔘 Module buttons only (open to dedicated page) */}
               {(current.modules || []).length > 0 ? (
                 <>
                   <h3 className="text-xs font-semibold text-gray-600 mb-2">Modules</h3>
@@ -238,7 +229,6 @@ function HomeView({
                         <button
                           key={`btn-${mod.id}`}
                           onClick={() => {
-                            // keep the selected phase in state for breadcrumbs
                             setPhaseId(current.id);
                             navigate(`/phase/${current.id}/module/${mod.id}`);
                           }}
@@ -246,9 +236,7 @@ function HomeView({
                           title={`Open ${mod.title}`}
                         >
                           <div className="text-sm font-semibold truncate">{mod.title}</div>
-                          <div className="mt-1 text-xs text-gray-600">
-                            {st.done}/{st.total} done • {st.pct}%
-                          </div>
+                          <div className="mt-1 text-xs text-gray-600">{st.pct}%</div>
                         </button>
                       );
                     })}
