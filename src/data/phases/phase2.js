@@ -1,5 +1,6 @@
 // src/data/phases/phase2.js
 // Phase 2 — SYS200, NET200, PYT200, CRY200, CTI100
+
 export default {
   id: "phase2",
   title: "Phase 2 — Cybersecurity Intermediate Skills",
@@ -36,9 +37,9 @@ export default {
           id: "sys200-d1-assign",
           title: "Assignments",
           items: [
-            { id: "sys200-m1-1-a1", type: "assignment", title: "Infosec — Using Windows Features and Tools (Required)", meta: { points: 10 } },
+            { id: "sys200-m1-1-a1", type: "assignment", title: "Infosec — Using Windows Features and Tools", meta: { points: 10 } },
             { id: "sys200-m1-1-a2", type: "assignment", title: "Infosec — Configuring Windows Applications and Services", meta: { points: 10 } },
-            { id: "sys200-m1-1-a3", type: "assignment", title: "Infosec — User Profiles & Windows Registry (Required)", meta: { points: 10 } },
+            { id: "sys200-m1-1-a3", type: "assignment", title: "Infosec — User Profiles & Windows Registry", meta: { points: 10 } },
             { id: "sys200-m1-2-a1", type: "assignment", title: "Infosec — Managing Files, Folders & Disks in Windows", meta: { points: 10 } },
             { id: "sys200-m1-2-quiz", type: "quiz", title: "Quiz — Windows Command Line & PowerShell Basics (Lab)", meta: { points: 10 } },
           ],
@@ -67,7 +68,7 @@ export default {
           title: "Assignments",
           items: [
             { id: "sys200-m2-1-quiz", type: "quiz", title: "Quiz — Windows PowerShell (Lab)", meta: { points: 9 } },
-            { id: "sys200-m2-1-a1", type: "assignment", title: "Infosec — Using Windows Troubleshooting Tools (Required)", meta: { points: 10 } },
+            { id: "sys200-m2-1-a1", type: "assignment", title: "Infosec — Using Windows Troubleshooting Tools", meta: { points: 10 } },
             { id: "sys200-m2-2-quiz", type: "quiz", title: "Quiz — LDAP Install (Lab)", meta: { points: 9 } },
           ],
         },
@@ -89,8 +90,8 @@ export default {
           id: "sys200-d3-assign",
           title: "Assignments",
           items: [
-            { id: "sys200-m3-1-a1", type: "assignment", title: "Infosec — Configuring AD Accounts & Policies (Required)", meta: { points: 10 } },
-            { id: "sys200-m3-1-a2", type: "assignment", title: "Infosec — Using Active Directory in the Enterprise (Required)", meta: { points: 10 } },
+            { id: "sys200-m3-1-a1", type: "assignment", title: "Infosec — Configuring AD Accounts & Policies", meta: { points: 10 } },
+            { id: "sys200-m3-1-a2", type: "assignment", title: "Infosec — Using Active Directory in the Enterprise", meta: { points: 10 } },
             { id: "sys200-m3-1-quiz", type: "quiz", title: "CSE SYS200 Module Quiz", meta: { points: 30 } },
           ],
         },
@@ -133,8 +134,8 @@ export default {
           items: [
             { id: "net200-m1-a1", type: "quiz", title: "Lab — HW IP Addressing", meta: { points: 36 } },
             { id: "net200-m1-a2", type: "quiz", title: "Advanced Lab — Bruce Wayne Problem (Challenging!)", meta: { points: 18 } },
-            { id: "net200-m1-a3", type: "assignment", title: "Lab — Firewall Configuration pfSense (Required)", meta: { points: 10 } },
-            { id: "net200-m1-a4", type: "quiz", title: "Quiz — Firewall Configuration VyOS (Required)", meta: { points: 12 } },
+            { id: "net200-m1-a3", type: "assignment", title: "Lab — Firewall Configuration pfSense", meta: { points: 10 } },
+            { id: "net200-m1-a4", type: "quiz", title: "Quiz — Firewall Configuration VyOS", meta: { points: 12 } },
           ],
         },
 
@@ -163,8 +164,8 @@ export default {
           title: "Assignments",
           items: [
             { id: "net200-m2-1-quiz", type: "quiz", title: "Quiz — Internet Registries (Lab)", meta: { points: 10 } },
-            { id: "net200-m2-2-a1", type: "assignment", title: "Infosec — Configure VPN with OpenVPN (Required)", meta: { points: 10 } },
-            { id: "net200-m2-2-a2", type: "assignment", title: "Infosec — Intrusion Detection using Snort (Required)", meta: { points: 10 } },
+            { id: "net200-m2-2-a1", type: "assignment", title: "Infosec — Configure VPN with OpenVPN", meta: { points: 10 } },
+            { id: "net200-m2-2-a2", type: "assignment", title: "Infosec — Intrusion Detection using Snort", meta: { points: 10 } },
           ],
         },
 
@@ -184,7 +185,7 @@ export default {
         {
           id: "net200-m3-assign",
           title: "Assignments",
-          items: [{ id: "net200-m3-1-quiz", type: "quiz", title: "Quiz — Port Mirroring (Lab) (Required)", meta: { points: 9 } }],
+          items: [{ id: "net200-m3-1-quiz", type: "quiz", title: "Quiz — Port Mirroring (Lab)", meta: { points: 9 } }],
         },
 
         {
@@ -314,8 +315,8 @@ export default {
           id: "cry200-m1-assign",
           title: "Assignments",
           items: [
-            { id: "cry200-m1-1-quiz", type: "quiz", title: "Quiz — Cert Hunt (Lab) (Required)", meta: { points: 9 } },
-            { id: "cry200-m1-2-quiz", type: "quiz", title: "Quiz — Public & Private Keys (Lab) (Required)", meta: { points: 10 } },
+            { id: "cry200-m1-1-quiz", type: "quiz", title: "Quiz — Cert Hunt (Lab)", meta: { points: 9 } },
+            { id: "cry200-m1-2-quiz", type: "quiz", title: "Quiz — Public & Private Keys (Lab)", meta: { points: 10 } },
           ],
         },
 
@@ -327,7 +328,7 @@ export default {
             { id: "cry200-m2-1-notes", type: "page", title: "📚 CRY200-M2-1 — Certificates #Notes" },
             { id: "cry200-m2-2-v", type: "page", title: "TLS / SSL (2 videos)", meta: { timeMin: 11 } },
             { id: "cry200-m2-2-notes", type: "page", title: "📚 CRY200-M2-2 — SSL / TLS #Notes" },
-            { id: "cry200-discussion", type: "page", title: "📚 Discussion — Using AI in Asymmetric/Quantum Encryption" },
+            { id: "cry200-discussion", type: "page", title: "📚 Discussion — Using AI in Asymmetric / Quantum Encryption" },
           ],
         },
         {
@@ -342,8 +343,8 @@ export default {
           id: "cry200-m2-assign",
           title: "Assignments",
           items: [
-            { id: "cry200-m2-1-quiz", type: "quiz", title: "Quiz — CSRs (Lab) (Required)", meta: { points: 12 } },
-            { id: "cry200-m2-2-quiz", type: "quiz", title: "Quiz — Install Apache Certs (Lab) (Required)", meta: { points: 9 } },
+            { id: "cry200-m2-1-quiz", type: "quiz", title: "Quiz — CSRs (Lab)", meta: { points: 12 } },
+            { id: "cry200-m2-2-quiz", type: "quiz", title: "Quiz — Install Apache Certs (Lab)", meta: { points: 9 } },
           ],
         },
 
@@ -364,7 +365,7 @@ export default {
           id: "cry200-m3-assign",
           title: "Assignments",
           items: [
-            { id: "cry200-m3-1-quiz", type: "quiz", title: "Quiz — SSH Certificates (Lab) (Required)", meta: { points: 9 } },
+            { id: "cry200-m3-1-quiz", type: "quiz", title: "Quiz — SSH Certificates (Lab)", meta: { points: 9 } },
             { id: "cry200-phase-assessment", type: "quiz", title: "CRY200-M4-1 — Phase Assessment", meta: { points: 30 } },
           ],
         },
@@ -406,8 +407,8 @@ export default {
           id: "cti100-m1-assign",
           title: "Assignments",
           items: [
-            { id: "cti100-m1-1-quiz", type: "quiz", title: "Quiz — Introduction to Strategy (Required)", meta: { points: 20 } },
-            { id: "cti100-m1-2-quiz", type: "quiz", title: "Quiz — Introduction to Operational Design (Required)", meta: { points: 20 } },
+            { id: "cti100-m1-1-quiz", type: "quiz", title: "Quiz — Introduction to Strategy", meta: { points: 20 } },
+            { id: "cti100-m1-2-quiz", type: "quiz", title: "Quiz — Introduction to Operational Design", meta: { points: 20 } },
           ],
         },
 
@@ -437,8 +438,8 @@ export default {
           id: "cti100-m2-assign",
           title: "Assignments",
           items: [
-            { id: "cti100-m2-1-quiz", type: "quiz", title: "Quiz — Information Warfare (Required)", meta: { points: 21 } },
-            { id: "cti100-m2-2-quiz", type: "quiz", title: "Quiz — Threat Intelligence (Required)", meta: { points: 17 } },
+            { id: "cti100-m2-1-quiz", type: "quiz", title: "Quiz — Information Warfare", meta: { points: 21 } },
+            { id: "cti100-m2-2-quiz", type: "quiz", title: "Quiz — Threat Intelligence", meta: { points: 17 } },
           ],
         },
 

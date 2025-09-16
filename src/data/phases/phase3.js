@@ -1,5 +1,6 @@
 // src/data/phases/phase3.js
 // Phase 3 — SYS300, NET300, CRY300, CTI200, SIE100
+
 export default {
   id: "phase3",
   title: "Phase 3 — Cybersecurity Skills Development",
@@ -27,8 +28,8 @@ export default {
           id: "sys300-m1-assign",
           title: "Assignments",
           items: [
-            { id: "sys300-m1-1-quiz", type: "quiz", title: "Quiz — Directory Traversals & chroot jail (Lab) (Required)", meta: { points: 9 } },
-            { id: "sys300-m1-2-quiz", type: "quiz", title: "Quiz — BASH Scripts & Cron Jobs (Lab) (Required)", meta: { points: 10 } },
+            { id: "sys300-m1-1-quiz", type: "quiz", title: "Quiz — Directory Traversals & chroot jail (Lab)", meta: { points: 9 } },
+            { id: "sys300-m1-2-quiz", type: "quiz", title: "Quiz — BASH Scripts & Cron Jobs (Lab)", meta: { points: 10 } },
           ],
         },
 
@@ -46,8 +47,8 @@ export default {
           id: "sys300-m2-assign",
           title: "Assignments",
           items: [
-            { id: "sys300-m2-1-quiz", type: "quiz", title: "Quiz — Race Conditions (Lab) (Required)", meta: { points: 10 } },
-            { id: "sys300-m2-2-quiz", type: "quiz", title: "Quiz — Compiling (Lab) (Required)", meta: { points: 10 } },
+            { id: "sys300-m2-1-quiz", type: "quiz", title: "Quiz — Race Conditions (Lab)", meta: { points: 10 } },
+            { id: "sys300-m2-2-quiz", type: "quiz", title: "Quiz — Compiling (Lab)", meta: { points: 10 } },
           ],
         },
 
@@ -63,7 +64,7 @@ export default {
           id: "sys300-m3-assign",
           title: "Assignments",
           items: [
-            { id: "sys300-m3-1-quiz", type: "quiz", title: "Quiz — C Code Exploits (Lab) (Required)", meta: { points: 10 } },
+            { id: "sys300-m3-1-quiz", type: "quiz", title: "Quiz — C Code Exploits (Lab)", meta: { points: 10 } },
             { id: "sys300-m3-1-disc", type: "page", title: "📚 Discussion — Using AI to Detect TOCTOU exploits" },
             { id: "sys300-phase-assessment", type: "quiz", title: "SYS300-M4-1 — Phase Assessment", meta: { points: 24 } },
           ],
@@ -95,10 +96,10 @@ export default {
           title: "Assignments",
           items: [
             { id: "net300-fedora-install", type: "assignment", title: "Installing Fedora Linux" },
-            { id: "net300-m1-1-quiz", type: "quiz", title: "Quiz — LAMP Setup (Lab) (Required)", meta: { points: 10 } },
-            { id: "net300-m1-2-quiz1", type: "quiz", title: "Quiz — HTTP Proxies (Lab) (Required)", meta: { points: 9 } },
-            { id: "net300-m1-2-quiz3", type: "quiz", title: "Quiz — Application Expansion (Lab) (Required)", meta: { points: 11 } },
-            { id: "net300-m1-2-quiz2", type: "quiz", title: "Quiz — Writing HTML (Lab) (Required)", meta: { points: 9 } },
+            { id: "net300-m1-1-quiz", type: "quiz", title: "Quiz — LAMP Setup (Lab)", meta: { points: 10 } },
+            { id: "net300-m1-2-quiz1", type: "quiz", title: "Quiz — HTTP Proxies (Lab)", meta: { points: 9 } },
+            { id: "net300-m1-2-quiz3", type: "quiz", title: "Quiz — Application Expansion (Lab)", meta: { points: 11 } },
+            { id: "net300-m1-2-quiz2", type: "quiz", title: "Quiz — Writing HTML (Lab)", meta: { points: 9 } },
           ],
         },
 
@@ -119,9 +120,9 @@ export default {
           id: "net300-m2-assign",
           title: "Assignments",
           items: [
-            { id: "net300-m2-1-quiz1", type: "quiz", title: "Quiz — Apache Configuration (Lab) (Required)", meta: { points: 10 } },
-            { id: "net300-m2-1-quiz2", type: "quiz", title: "Quiz — JavaScript (Lab) (Required)", meta: { points: 10 } },
-            { id: "net300-m2-2-quiz", type: "quiz", title: "Quiz — PHP DB (Lab) (Required)", meta: { points: 12 } },
+            { id: "net300-m2-1-quiz1", type: "quiz", title: "Quiz — Apache Configuration (Lab)", meta: { points: 10 } },
+            { id: "net300-m2-1-quiz2", type: "quiz", title: "Quiz — JavaScript (Lab)", meta: { points: 10 } },
+            { id: "net300-m2-2-quiz", type: "quiz", title: "Quiz — PHP DB (Lab)", meta: { points: 12 } },
           ],
         },
 
@@ -137,7 +138,7 @@ export default {
           id: "net300-m3-assign",
           title: "Assignments",
           items: [
-            { id: "net300-m3-1-quiz", type: "quiz", title: "Quiz — Authorization (Lab) (Required)", meta: { points: 10 } },
+            { id: "net300-m3-1-quiz", type: "quiz", title: "Quiz — Authorization (Lab)", meta: { points: 10 } },
             { id: "net300-m3-1-project-note", type: "page", title: "Project — Web Presentations (turn in at NET300-M4-1)" },
           ],
         },
@@ -173,8 +174,8 @@ export default {
           id: "cry300-m1-assign",
           title: "Assignments",
           items: [
-            { id: "cry300-m1-1-quiz", type: "quiz", title: "Quiz — Tor & Anonymous Browsing (Lab) (Required)", meta: { points: 10 } },
-            { id: "cry300-m1-2-quiz", type: "quiz", title: "Quiz — Blockchain (Lab) (Required)", meta: { points: 10 } },
+            { id: "cry300-m1-1-quiz", type: "quiz", title: "Quiz — Tor & Anonymous Browsing (Lab)", meta: { points: 10 } },
+            { id: "cry300-m1-2-quiz", type: "quiz", title: "Quiz — Blockchain (Lab)", meta: { points: 10 } },
           ],
         },
 
@@ -192,9 +193,9 @@ export default {
           id: "cry300-m2-assign",
           title: "Assignments",
           items: [
-            { id: "cry300-m2-1-quiz", type: "quiz", title: "Quiz — File Integrity Checks (Lab) (Required)", meta: { points: 10 } },
+            { id: "cry300-m2-1-quiz", type: "quiz", title: "Quiz — File Integrity Checks (Lab)", meta: { points: 10 } },
             { id: "cry300-m2-1-a1", type: "assignment", title: "Infosec — Examining Wireless Networks", meta: { points: 10 } },
-            { id: "cry300-m2-2-quiz", type: "quiz", title: "Quiz — Heartbleed (Lab) (Required)", meta: { points: 10 } },
+            { id: "cry300-m2-2-quiz", type: "quiz", title: "Quiz — Heartbleed (Lab)", meta: { points: 10 } },
           ],
         },
 
@@ -209,7 +210,7 @@ export default {
           id: "cry300-m3-assign",
           title: "Assignments",
           items: [
-            { id: "cry300-m3-1-quiz", type: "quiz", title: "Quiz — Intercepting SSL (Lab) (Required)", meta: { points: 12 } },
+            { id: "cry300-m3-1-quiz", type: "quiz", title: "Quiz — Intercepting SSL (Lab)", meta: { points: 12 } },
             { id: "cry300-m3-1-a1", type: "assignment", title: "Infosec — Breaking WEP/WPA & Decrypting Traffic", meta: { points: 10 } },
             { id: "cry300-m3-1-disc", type: "page", title: "📚 Discussion — Using AI for Cryptographic-based Attacks" },
             { id: "cry300-phase-assessment", type: "quiz", title: "CRY300-M4-1 — Phase Assessment", meta: { points: 28 } },
@@ -252,8 +253,8 @@ export default {
           id: "cti200-m1-assign",
           title: "Assignments",
           items: [
-            { id: "cti200-m1-1-quiz", type: "quiz", title: "Quiz — Cyber Threat Intelligence (Required)", meta: { points: 9 } },
-            { id: "cti200-m1-2-quiz", type: "quiz", title: "Quiz — Center of Gravity (Required)", meta: { points: 9 } },
+            { id: "cti200-m1-1-quiz", type: "quiz", title: "Quiz — Cyber Threat Intelligence", meta: { points: 9 } },
+            { id: "cti200-m1-2-quiz", type: "quiz", title: "Quiz — Center of Gravity", meta: { points: 9 } },
           ],
         },
 
@@ -279,8 +280,8 @@ export default {
           id: "cti200-m2-assign",
           title: "Assignments",
           items: [
-            { id: "cti200-m2-1-quiz", type: "quiz", title: "Quiz — Diamond Model (Required)", meta: { points: 9 } },
-            { id: "cti200-m2-2-quiz", type: "quiz", title: "Quiz — IPCE (Required)", meta: { points: 10 } },
+            { id: "cti200-m2-1-quiz", type: "quiz", title: "Quiz — Diamond Model", meta: { points: 9 } },
+            { id: "cti200-m2-2-quiz", type: "quiz", title: "Quiz — IPCE", meta: { points: 10 } },
           ],
         },
 
@@ -299,7 +300,7 @@ export default {
           id: "cti200-m3-assign",
           title: "Assignments",
           items: [
-            { id: "cti200-m3-1-quiz", type: "quiz", title: "Quiz — Mission Analysis (Required)", meta: { points: 10 } },
+            { id: "cti200-m3-1-quiz", type: "quiz", title: "Quiz — Mission Analysis", meta: { points: 10 } },
             { id: "cti200-m4-1-group", type: "assignment", title: "Group Project — IPCE Report & MA Presentation", meta: { points: 25 } },
             { id: "cti200-m4-1-quiz", type: "quiz", title: "Quiz — Phase Assessment", meta: { points: 25 } },
           ],
@@ -332,8 +333,8 @@ export default {
           id: "sie100-m1-assign",
           title: "Assignments",
           items: [
-            { id: "sie100-m1-1-quiz", type: "quiz", title: "Quiz — Log Mess (Lab) (Required)", meta: { points: 12 } },
-            { id: "sie100-m1-2-quiz", type: "quiz", title: "Quiz — Elastic Stack Installation (Lab) (Required)", meta: { points: 12 } },
+            { id: "sie100-m1-1-quiz", type: "quiz", title: "Quiz — Log Mess (Lab)", meta: { points: 12 } },
+            { id: "sie100-m1-2-quiz", type: "quiz", title: "Quiz — Elastic Stack Installation (Lab)", meta: { points: 12 } },
           ],
         },
 
@@ -351,8 +352,8 @@ export default {
           id: "sie100-m2-assign",
           title: "Assignments",
           items: [
-            { id: "sie100-m2-1-quiz", type: "quiz", title: "Quiz — Logstash & Filebeat (Lab) (Required)", meta: { points: 12 } },
-            { id: "sie100-m2-2-quiz", type: "quiz", title: "Quiz — Regular Expressions (Lab) (Required)", meta: { points: 9 } },
+            { id: "sie100-m2-1-quiz", type: "quiz", title: "Quiz — Logstash & Filebeat (Lab)", meta: { points: 12 } },
+            { id: "sie100-m2-2-quiz", type: "quiz", title: "Quiz — Regular Expressions (Lab)", meta: { points: 9 } },
           ],
         },
 
@@ -369,7 +370,7 @@ export default {
           id: "sie100-m3-assign",
           title: "Assignments",
           items: [
-            { id: "sie100-m3-1-quiz", type: "quiz", title: "Quiz — Splunk Install (Lab) (Required)", meta: { points: 10 } },
+            { id: "sie100-m3-1-quiz", type: "quiz", title: "Quiz — Splunk Install (Lab)", meta: { points: 10 } },
             { id: "sie100-phase-assessment", type: "quiz", title: "SIE100-M4-1 — Phase Assessment" },
           ],
         },

@@ -6,7 +6,7 @@ const id = (s) => s.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, "").toLowerCa
 const phase1 = {
   id: "phase1",
   title: "Phase 1  —  Cybersecurity Foundations",
-  subtitle: "SYS100 · NET100 · PYT100 · CRY100 · GRC100",
+  subtitle: "SYS100 • NET100 • PYT100 • CRY100 • GRC100",
   modules: [
     // ───────────────────────────────── SYS100
     {
@@ -39,8 +39,8 @@ const phase1 = {
           items: [
             { id: id("SYS100-M1-1-Quiz-1-Basic-Hardware"), type: "quiz", title: "Quiz — Basic Hardware (Lab)", meta: { points: 10, required: true } },
             { id: id("SYS100-M1-1-Lab-VirtualBox-Setup"), type: "assignment", title: "Lab — VirtualBox Setup" },
-            { id: id("SYS100-M1-2-Quiz-1-Linux-Basics"), type: "quiz", title: "Quiz — Linux Basics (Lab) · Not required", meta: { points: 12, required: false } },
-            { id: id("SYS100-M1-2-Quiz-2-VI-VIM"), type: "quiz", title: "Quiz — VI & VIM (Lab) · Not required", meta: { points: 10, required: false } }
+            { id: id("SYS100-M1-2-Quiz-1-Linux-Basics"), type: "quiz", title: "Quiz — Linux Basics (Lab)", meta: { points: 12, required: false } },
+            { id: id("SYS100-M1-2-Quiz-2-VI-VIM"), type: "quiz", title: "Quiz — VI & VIM (Lab)", meta: { points: 10, required: false } }
           ]
         },
 
@@ -67,9 +67,9 @@ const phase1 = {
           id: "p1-sys100-d2-assign",
           title: "Day 2 — Assignments",
           items: [
-            { id: id("SYS100-M2-1-Quiz-Users"), type: "quiz", title: "Quiz — Linux Users (Lab) · Not required", meta: { points: 10, required: false } },
-            { id: id("SYS100-M2-2-Quiz-LVM"), type: "quiz", title: "Quiz — LVM Processes (Lab) · Not required", meta: { points: 10, required: false } },
-            { id: id("SYS100-M2-2-Quiz-Fileshares"), type: "quiz", title: "Quiz — Fileshares (Lab) · Not required", meta: { points: 10, required: false } }
+            { id: id("SYS100-M2-1-Quiz-Users"), type: "quiz", title: "Quiz — Linux Users (Lab)", meta: { points: 10, required: false } },
+            { id: id("SYS100-M2-2-Quiz-LVM"), type: "quiz", title: "Quiz — LVM Processes (Lab)", meta: { points: 10, required: false } },
+            { id: id("SYS100-M2-2-Quiz-Fileshares"), type: "quiz", title: "Quiz — Fileshares (Lab)", meta: { points: 10, required: false } }
           ]
         },
 
@@ -90,7 +90,7 @@ const phase1 = {
           id: "p1-sys100-d3-slides",
           title: "Day 3 — Slides",
           items: [
-            { id: id("SYS100-M3-1-Slides-Linux-Shells-Aliases-Links.pdf"), type: "attachment", title: "Linux Shells · Aliases · Links.pdf" },
+            { id: id("SYS100-M3-1-Slides-Linux-Shells-Aliases-Links.pdf"), type: "attachment", title: "Linux Shells • Aliases • Links.pdf" },
             { id: id("SYS100-M3-2-Slides-Linux-Security-Models.pdf"), type: "attachment", title: "Linux Security Models.pdf" }
           ]
         },
@@ -98,8 +98,8 @@ const phase1 = {
           id: "p1-sys100-d3-assign",
           title: "Day 3 — Assignments",
           items: [
-            { id: id("SYS100-M3-1-Quiz-Processes-Bash"), type: "quiz", title: "Quiz — Linux Processes & Bash Scripting (Lab) · Not required", meta: { points: 11, required: false } },
-            { id: id("SYS100-M3-1-Quiz-Extended-Attributes"), type: "quiz", title: "Quiz — Extended Attributes (Lab) · Not required", meta: { points: 8, required: false } },
+            { id: id("SYS100-M3-1-Quiz-Processes-Bash"), type: "quiz", title: "Quiz — Linux Processes & Bash Scripting (Lab)", meta: { points: 11, required: false } },
+            { id: id("SYS100-M3-1-Quiz-Extended-Attributes"), type: "quiz", title: "Quiz — Extended Attributes (Lab)", meta: { points: 8, required: false } },
             { id: id("SYS100-M3-1-Discussion-AI-PC-Building"), type: "discussion", title: "💬 Discussion — Leveraging AI for Custom PC Building and System Scaling" }
           ]
         },
@@ -145,8 +145,8 @@ const phase1 = {
           id: "p1-net100-m1-assign",
           title: "M1 — Assignments",
           items: [
-            { id: id("NET100-M1-1-Quiz-Wireshark-Basics"), type: "quiz", title: "Quiz — Wireshark Basics (Lab) · Mandatory", meta: { points: 12, required: true } },
-            { id: id("NET100-M1-2-Quiz-Network-Diagramming"), type: "assignment", title: "Assignment — Network Diagramming (Lab) · Mandatory", meta: { points: 10, required: true } }
+            { id: id("NET100-M1-1-Quiz-Wireshark-Basics"), type: "quiz", title: "Quiz — Wireshark Basics (Lab)", meta: { points: 12, required: true } },
+            { id: id("NET100-M1-2-Quiz-Network-Diagramming"), type: "assignment", title: "Assignment — Network Diagramming (Lab)", meta: { points: 10, required: true } }
           ]
         },
 
@@ -174,9 +174,9 @@ const phase1 = {
           id: "p1-net100-m2-assign",
           title: "M2 — Assignments",
           items: [
-            { id: id("NET100-M2-1-Quiz-Configure-NICs"), type: "quiz", title: "Quiz — Configure NICs (Lab) · Important Not required", meta: { points: 10, required: false } },
-            { id: id("NET100-M2-2-Quiz-Wireshark-Hunt"), type: "quiz", title: "Quiz — Wireshark Hunt and Exploration (Lab) · Important Not required", meta: { points: 13, required: false } },
-            { id: id("NET100-M2-2-Quiz-HTTP-Netcat"), type: "quiz", title: "Quiz — HTTP and Netcat (Lab) · Important Not required", meta: { points: 10, required: false } }
+            { id: id("NET100-M2-1-Quiz-Configure-NICs"), type: "quiz", title: "Quiz — Configure NICs (Lab)", meta: { points: 10, required: false } },
+            { id: id("NET100-M2-2-Quiz-Wireshark-Hunt"), type: "quiz", title: "Quiz — Wireshark Hunt and Exploration (Lab)", meta: { points: 13, required: false } },
+            { id: id("NET100-M2-2-Quiz-HTTP-Netcat"), type: "quiz", title: "Quiz — HTTP and Netcat (Lab)", meta: { points: 10, required: false } }
           ]
         },
 
@@ -200,8 +200,8 @@ const phase1 = {
           id: "p1-net100-m3-assign",
           title: "M3 — Assignments",
           items: [
-            { id: id("NET100-M3-1-Quiz-Identify-Traffic"), type: "quiz", title: "Quiz — Wireshark Identify Traffic (Lab) · Mandatory", meta: { points: 12, required: true } },
-            { id: id("NET100-M3-1-Quiz-TCP-HTTP"), type: "quiz", title: "Quiz — TCP and HTTP (Lab) · Mandatory", meta: { points: 23, required: true } },
+            { id: id("NET100-M3-1-Quiz-Identify-Traffic"), type: "quiz", title: "Quiz — Wireshark Identify Traffic (Lab)", meta: { points: 12, required: true } },
+            { id: id("NET100-M3-1-Quiz-TCP-HTTP"), type: "quiz", title: "Quiz — TCP and HTTP (Lab)", meta: { points: 23, required: true } },
             { id: id("NET100-M3-1-Discussion-AI-Network-Config"), type: "discussion", title: "💬 Discussion — Using AI for Network Configuration" }
           ]
         },
@@ -209,7 +209,7 @@ const phase1 = {
         {
           id: "p1-net100-assessment",
           title: "Module 2 — Assessment & Survey",
-          items: [{ id: id("NET100-M4-1-Assessment"), type: "quiz", title: "Assessment — Module Quiz · Mandatory", meta: { points: 28, required: true } }]
+          items: [{ id: id("NET100-M4-1-Assessment"), type: "quiz", title: "Assessment — Module Quiz", meta: { points: 28, required: true } }]
         }
       ]
     },
@@ -244,8 +244,8 @@ const phase1 = {
           id: "p1-pyt100-m1-assign",
           title: "M1 — Assignments",
           items: [
-            { id: id("PYT100-M1-1-Quiz-Thonny-IDE"), type: "quiz", title: "Quiz — Thonny IDE (Lab) · Not required", meta: { points: 10, required: false } },
-            { id: id("PYT100-M1-2-Quiz-Variables-IF-ELIF-ELSE"), type: "quiz", title: "Quiz — Variables / IF-ELIF-ELSE (Lab) · Not required", meta: { points: 12, required: false } }
+            { id: id("PYT100-M1-1-Quiz-Thonny-IDE"), type: "quiz", title: "Quiz — Thonny IDE (Lab)", meta: { points: 10, required: false } },
+            { id: id("PYT100-M1-2-Quiz-Variables-IF-ELIF-ELSE"), type: "quiz", title: "Quiz — Variables / IF-ELIF-ELSE (Lab)", meta: { points: 12, required: false } }
           ]
         },
 
@@ -271,8 +271,8 @@ const phase1 = {
           id: "p1-pyt100-m2-assign",
           title: "M2 — Assignments",
           items: [
-            { id: id("PYT100-M2-1-Quiz-Comparisons-Logical"), type: "quiz", title: "Quiz — Comparisons & Logical Operators (Lab) · Not required", meta: { points: 9, required: false } },
-            { id: id("PYT100-M2-2-Quiz-While-Loops"), type: "quiz", title: "Quiz — While Loops (Lab) · Not required", meta: { points: 10, required: false } }
+            { id: id("PYT100-M2-1-Quiz-Comparisons-Logical"), type: "quiz", title: "Quiz — Comparisons & Logical Operators (Lab)", meta: { points: 9, required: false } },
+            { id: id("PYT100-M2-2-Quiz-While-Loops"), type: "quiz", title: "Quiz — While Loops (Lab)", meta: { points: 10, required: false } }
           ]
         },
 
@@ -289,7 +289,7 @@ const phase1 = {
           title: "M3 — Assignments",
           items: [
             { id: id("PYT100-M3-1-Discussion-AI-Tasks"), type: "discussion", title: "💬 Discussion — Using Python in AI-related tasks" },
-            { id: id("PYT100-M3-1-Quiz-For-Loops"), type: "quiz", title: "Quiz — For Loops (Lab) · Not required", meta: { points: 9, required: false } }
+            { id: id("PYT100-M3-1-Quiz-For-Loops"), type: "quiz", title: "Quiz — For Loops (Lab)", meta: { points: 9, required: false } }
           ]
         },
 
@@ -327,8 +327,8 @@ const phase1 = {
           id: "p1-cry100-m1-assign",
           title: "M1 — Assignments",
           items: [
-            { id: id("CRY100-M1-1-Quiz-Cryptanalysis"), type: "quiz", title: "Quiz — Cryptanalysis (Lab) · Not required", meta: { points: 9, required: false } },
-            { id: id("CRY100-M1-2-Quiz-SPN"), type: "quiz", title: "Quiz — Substitution/Permutation Networks (Lab) · Not required", meta: { points: 9, required: false } }
+            { id: id("CRY100-M1-1-Quiz-Cryptanalysis"), type: "quiz", title: "Quiz — Cryptanalysis (Lab)", meta: { points: 9, required: false } },
+            { id: id("CRY100-M1-2-Quiz-SPN"), type: "quiz", title: "Quiz — Substitution/Permutation Networks (Lab)", meta: { points: 9, required: false } }
           ]
         },
 
@@ -353,8 +353,8 @@ const phase1 = {
           id: "p1-cry100-m2-assign",
           title: "M2 — Assignments",
           items: [
-            { id: id("CRY100-M2-1-Quiz-Modes"), type: "quiz", title: "Quiz — Modes of Operations (Lab) · Not required", meta: { points: 11, required: false } },
-            { id: id("CRY100-M2-2-Quiz-Hashes"), type: "quiz", title: "Quiz — Hash Functions (Lab) · Not required", meta: { points: 9, required: false } }
+            { id: id("CRY100-M2-1-Quiz-Modes"), type: "quiz", title: "Quiz — Modes of Operations (Lab)", meta: { points: 11, required: false } },
+            { id: id("CRY100-M2-2-Quiz-Hashes"), type: "quiz", title: "Quiz — Hash Functions (Lab)", meta: { points: 9, required: false } }
           ]
         },
 
@@ -375,7 +375,7 @@ const phase1 = {
           id: "p1-cry100-m3-assign",
           title: "M3 — Assignments",
           items: [
-            { id: id("CRY100-M3-1-Quiz-HMAC"), type: "quiz", title: "Quiz — HMAC Authentication (Lab) · Not required", meta: { points: 10, required: false } },
+            { id: id("CRY100-M3-1-Quiz-HMAC"), type: "quiz", title: "Quiz — HMAC Authentication (Lab)", meta: { points: 10, required: false } },
             { id: id("CRY100-M3-1-Discussion-AI-in-Symmetric"), type: "discussion", title: "💬 Discussion — AI in symmetric encryption." }
           ]
         },
@@ -420,8 +420,8 @@ const phase1 = {
           id: "p1-grc100-m1-assign",
           title: "M1 — Assignments",
           items: [
-            { id: id("GRC100-M1-1-Quiz-Governance"), type: "quiz", title: "Quiz — Governance · Not required", meta: { points: 10, required: false } },
-            { id: id("GRC100-M1-2-Quiz-Standards"), type: "quiz", title: "Quiz — Standards & Best Practices · Not required", meta: { points: 12, required: false } }
+            { id: id("GRC100-M1-1-Quiz-Governance"), type: "quiz", title: "Quiz — Governance", meta: { points: 10, required: false } },
+            { id: id("GRC100-M1-2-Quiz-Standards"), type: "quiz", title: "Quiz — Standards & Best Practices", meta: { points: 12, required: false } }
           ]
         },
 
@@ -448,8 +448,8 @@ const phase1 = {
           id: "p1-grc100-m2-assign",
           title: "M2 — Assignments",
           items: [
-            { id: id("GRC100-M2-1-Quiz-Privacy"), type: "quiz", title: "Quiz — Privacy · Mandatory", meta: { points: 10, required: true } },
-            { id: id("GRC100-M2-2-Quiz-Corporate-Governance"), type: "quiz", title: "Quiz — Corporate Governance · Mandatory", meta: { points: 10, required: true } }
+            { id: id("GRC100-M2-1-Quiz-Privacy"), type: "quiz", title: "Quiz — Privacy", meta: { points: 10, required: true } },
+            { id: id("GRC100-M2-2-Quiz-Corporate-Governance"), type: "quiz", title: "Quiz — Corporate Governance", meta: { points: 10, required: true } }
           ]
         },
 
@@ -477,8 +477,8 @@ const phase1 = {
           id: "p1-grc100-m3-assign",
           title: "M3 — Assignments",
           items: [
-            { id: id("GRC100-M3-1-Quiz-BCP"), type: "quiz", title: "Quiz — Business Continuity Planning · Mandatory", meta: { points: 10, required: true } },
-            { id: id("GRC100-M3-2-Quiz-Security-Resp"), type: "quiz", title: "Quiz — Security Responsibilities · Mandatory", meta: { points: 10, required: true } },
+            { id: id("GRC100-M3-1-Quiz-BCP"), type: "quiz", title: "Quiz — Business Continuity Planning", meta: { points: 10, required: true } },
+            { id: id("GRC100-M3-2-Quiz-Security-Resp"), type: "quiz", title: "Quiz — Security Responsibilities", meta: { points: 10, required: true } },
             { id: id("GRC100-M3-1-Discussion-AI-Ethics"), type: "discussion", title: "💬 Discussion — Potential Biases, Fairness Concerns, and Privacy Considerations with AI" }
           ]
         }
