@@ -238,7 +238,7 @@ export default {
           items: [
             { id: "app100-m2-q1", type: "quiz", title: "Quiz — Nessus Installation (Lab)", meta: { points: 10 } },
             { id: "app100-m2-q2", type: "quiz", title: "Quiz — Vulnerability Scanning with Nessus (Lab)", meta: { points: 10 } },
-            { id: "app100-m2-a1", type: "assignment", title: "Assignment — Advanced: Nessus on Metasploitable (Optional)", meta: { points: 0 } },
+            { id: "app100-m2-a1", type: "assignment", title: "Assignment — Advanced: Nessus on Metasploitable", meta: { points: 0 } },
             { id: "app100-m2-q3", type: "quiz", title: "Quiz — Banner Grabbing (Lab)", meta: { points: 9 } },
             { id: "app100-m2-q4", type: "quiz", title: "Quiz — Dictionary Attacks (Lab)", meta: { points: 9 } },
             { id: "app100-m2-q5", type: "quiz", title: "Quiz — Account Hacking (Lab)", meta: { points: 10 } },
