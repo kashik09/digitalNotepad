@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const BUILT_INS = [
-  "light","dark","corporate","cupcake","dracula","lofi","business","dim","night","retro","synthwave","cyberpunk"
+"paper-notebook", "paper-notebook-dark", "parchment", "parchment-dark", "newsprint", "newsprint-dark", "blueprint", "blueprint-dark", "manila", "manila-dark", "moleskine", "moleskine-dark", "custom" 
 ];
 
 const LS_THEME_KEY = "app.theme";
