@@ -1,8 +1,13 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+// vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
-export default defineConfig({
+// ⬅️ Set this to your repo name EXACTLY as on GitHub
+const repoName = "digitalNotepad";
+
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: '/cyber-notes/' // <- change to your repo name
-})
+  // For GitHub Pages project sites: /<repo>/
+  // For local dev: /
+  base: mode === "production" ? `/${repoName}/` : "/",
+}));
