@@ -1,6 +1,6 @@
 // src/App.jsx
 import { useEffect, useMemo, useState } from "react";
-import { HashRouter, Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, useNavigate, useParams, Link } from "react-router-dom";
 
 import { starter } from "./data/starter";
 import { LS_KEY, minutesToHMS } from "./utils/format";
@@ -14,12 +14,10 @@ import { loadPhase } from "./data/loadPhase";
 import Overview from "./components/Overview";
 import { overview } from "./data/overview";
 
-// Pages
+// IMPORTANT: keep YOUR hub UI exactly as you built it
 import HomeHub from "./pages/HomeHub";
 
-/* =============================== */
-/* helpers                         */
-/* =============================== */
+/* =============== helpers =============== */
 function moduleStats(module, store) {
   let total = 0, done = 0;
   (module.sections || []).forEach((s) =>
@@ -32,16 +30,14 @@ function moduleStats(module, store) {
   return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
 }
 
-/* =============================== */
-/* Home (Overview / Notes)         */
-/* =============================== */
+/* ========== Cyber Home (Overview / Notes) ========== */
 function HomeView({
   data, setData,
   store,
   phaseId, setPhaseId,
   view, setView,
 }) {
-  // lazy-load phase on select
+  // lazy-load current phase when needed
   useEffect(() => {
     const p = data.phases.find((x) => x.id === phaseId);
     if (!p || (p.modules && p.modules.length > 0)) return;
@@ -49,7 +45,10 @@ function HomeView({
     loadPhase(phaseId)
       .then((full) => {
         if (cancelled) return;
-        setData((prev) => ({ ...prev, phases: prev.phases.map((x) => (x.id === phaseId ? full : x)) }));
+        setData((prev) => ({
+          ...prev,
+          phases: prev.phases.map((x) => (x.id === phaseId ? full : x)),
+        }));
       })
       .catch((e) => console.error("Failed to load phase", phaseId, e));
     return () => { cancelled = true; };
@@ -79,10 +78,12 @@ function HomeView({
 
   return (
     <div className="min-h-screen bg-base-200 text-base-content">
-      {/* Header */}
+      {/* Top bar */}
       <header className="sticky top-0 z-10 backdrop-blur bg-base-100/80 border-b border-base-300">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">⚡ Cyber Phases Notes</Link>
+          <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">
+            ⚡ Cyber Phases Notes
+          </Link>
 
           <div className="ml-4 flex rounded-lg overflow-hidden border border-base-300">
             <button
@@ -99,14 +100,12 @@ function HomeView({
             </button>
           </div>
 
-          <div className="ml-auto flex items-center gap-3">
-            {/* search removed from phases/notes page by request */}
+          <div className="ml-auto">
             <ThemeSwitcher subject="cyber" />
           </div>
         </div>
       </header>
 
-      {/* Body */}
       <main className="max-w-6xl mx-auto px-4 py-4">
         {view === "overview" ? (
           <Overview
@@ -116,7 +115,7 @@ function HomeView({
           />
         ) : (
           <>
-            {/* Phases row */}
+            {/* Phases ribbon */}
             <section aria-label="Phases" className="mb-4">
               <h2 className="text-xs font-semibold opacity-70 mb-2">Phases</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -202,9 +201,7 @@ function HomeView({
   );
 }
 
-/* =============================== */
-/* Module Page (dedicated route)   */
-/* =============================== */
+/* ========== Module Page ========== */
 function ModulePage({ data, setData, store, setStore }) {
   const { phaseId, moduleId } = useParams();
   const navigate = useNavigate();
@@ -220,7 +217,10 @@ function ModulePage({ data, setData, store, setStore }) {
     loadPhase(phaseId)
       .then((full) => {
         if (!cancelled) {
-          setData((prev) => ({ ...prev, phases: prev.phases.map((x) => (x.id === phaseId ? full : x)) }));
+          setData((prev) => ({
+            ...prev,
+            phases: prev.phases.map((x) => (x.id === phaseId ? full : x)),
+          }));
         }
       })
       .catch((e) => console.error("Failed to load phase", phaseId, e));
@@ -232,7 +232,7 @@ function ModulePage({ data, setData, store, setStore }) {
     [phase, moduleId]
   );
 
-  // local, module-scoped search
+  // module-scoped search
   const [mq, setMq] = useState("");
   const filteredModule = useMemo(() => {
     if (!module) return module;
@@ -251,10 +251,12 @@ function ModulePage({ data, setData, store, setStore }) {
 
   return (
     <div className="min-h-screen bg-base-200 text-base-content">
-      {/* Header: ONLY brand + theme */}
+      {/* top bar */}
       <header className="sticky top-0 z-10 backdrop-blur bg-base-100/80 border-b border-base-300">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">⚡ Cyber Phases Notes</Link>
+          <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">
+            ⚡ Cyber Phases Notes
+          </Link>
           <div className="ml-auto">
             <ThemeSwitcher subject="cyber" />
           </div>
@@ -262,7 +264,7 @@ function ModulePage({ data, setData, store, setStore }) {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-4">
-        {/* Back button on its own line (not in the header row) */}
+        {/* Back on its own line */}
         <div className="mb-2">
           <button className="btn btn-ghost btn-sm" onClick={() => navigate("/cyber")}>← Back</button>
         </div>
@@ -276,7 +278,7 @@ function ModulePage({ data, setData, store, setStore }) {
               <h1 className="text-xl font-bold">{module.title}</h1>
             </div>
 
-            {/* module-scoped search */}
+            {/* module search */}
             <div className="mb-3 relative">
               <Icon name="search" className="w-4 h-4 absolute left-3 top-2.5 opacity-50" />
               <input
@@ -295,9 +297,44 @@ function ModulePage({ data, setData, store, setStore }) {
   );
 }
 
-/* =============================== */
-/* App Shell with Router           */
-/* =============================== */
+/* ========== Software placeholders (routes work; UI minimal) ========== */
+function SoftwareAppPlaceholder() {
+  return (
+    <div className="min-h-screen bg-base-200 text-base-content">
+      <header className="sticky top-0 z-10 backdrop-blur bg-base-100/80 border-b border-base-300">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">🛠️ Software Dev Notes</Link>
+          <div className="ml-auto">
+            <ThemeSwitcher subject="software" />
+          </div>
+        </div>
+      </header>
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        <p className="opacity-80">Software Dev space coming next. Replace this placeholder later.</p>
+      </main>
+    </div>
+  );
+}
+
+function PortfolioPlaceholder() {
+  return (
+    <div className="min-h-screen bg-base-200 text-base-content">
+      <header className="sticky top-0 z-10 backdrop-blur bg-base-100/80 border-b border-base-300">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">🎨 Portfolio</Link>
+          <div className="ml-auto">
+            <ThemeSwitcher subject="software" />
+          </div>
+        </div>
+      </header>
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        <p className="opacity-80">Portfolio lives under Software Engineering. Build out components here later.</p>
+      </main>
+    </div>
+  );
+}
+
+/* ========== App shell / routes ========== */
 export default function App() {
   const [data, setData] = useState(starter);
   const [store, setStore] = useState({ items: {} });
@@ -321,13 +358,12 @@ export default function App() {
     localStorage.setItem(LS_KEY, JSON.stringify({ data, store, phaseId }));
   }, [data, store, phaseId]);
 
-  // wrapper for the Cyber app so it lives at /cyber
+  // Cyber app mounted at /cyber
   const CyberApp = (
     <HomeView
       data={data}
       setData={setData}
       store={store}
-      setStore={setStore}
       phaseId={phaseId}
       setPhaseId={setPhaseId}
       view={view}
@@ -335,42 +371,25 @@ export default function App() {
     />
   );
 
-  // tiny placeholder so Software Dev nav has a route to hit
-  function SoftwareAppPlaceholder() {
-    return (
-      <div className="min-h-screen bg-base-200 text-base-content">
-        <header className="sticky top-0 z-10 backdrop-blur bg-base-100/80 border-b border-base-300">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-            <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">🛠️ Software Dev Notes</Link>
-            <div className="ml-auto">
-              <ThemeSwitcher subject="software" />
-            </div>
-          </div>
-        </header>
-        <main className="max-w-4xl mx-auto px-4 py-6">
-          <p className="opacity-80">
-            Software Dev space coming next. Add its data + pages, then replace this placeholder.
-          </p>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <HashRouter>
       <Routes>
-        {/* Hub is the landing page */}
-        <Route path="/" element={<Navigate to="/hub" replace />} />
+        {/* Your hub (kept as-is) */}
+        <Route path="/" element={<HomeHub />} />
         <Route path="/hub" element={<HomeHub />} />
 
-        {/* Cyber app lives under /cyber */}
+        {/* Cyber routes */}
         <Route path="/cyber" element={CyberApp} />
-        <Route path="/phase/:phaseId/module/:moduleId" element={<ModulePage data={data} setData={setData} store={store} setStore={setStore} />} />
+        <Route
+          path="/phase/:phaseId/module/:moduleId"
+          element={<ModulePage data={data} setData={setData} store={store} setStore={setStore} />}
+        />
 
-        {/* Software Dev placeholder so navigation works */}
-        <Route path="/software/*" element={<SoftwareAppPlaceholder />} />
+        {/* Software + Portfolio (placeholders so links work) */}
+        <Route path="/software" element={<SoftwareAppPlaceholder />} />
+        <Route path="/software/portfolio" element={<PortfolioPlaceholder />} />
 
-        {/* catch-all */}
+        {/* Fallback */}
         <Route path="*" element={<HomeHub />} />
       </Routes>
     </HashRouter>
