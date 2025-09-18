@@ -1,60 +1,82 @@
-// src/pages/HomeHub.jsx
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-
-function Tile({ to, emoji, title, subtitle }) {
-  const inner = (
-    <div className="rounded-2xl border border-base-300 bg-base-100 p-4 hover:shadow-md transition flex gap-4 items-center">
-      <div className="text-3xl">{emoji}</div>
-      <div>
-        <div className="font-semibold">{title}</div>
-        {subtitle && <div className="text-sm opacity-70">{subtitle}</div>}
-      </div>
-    </div>
-  );
-  return to ? <Link to={to} className="block">{inner}</Link> : inner;
-}
+import Overview from "../components/Overview.jsx";
+import loadPhase from "../data/loadPhase.js";
+import starter from "../data/starter.js";
 
 export default function HomeHub() {
+  const [view, setView] = useState("overview"); // "overview" | "notes"
+  const [currentPhaseId, setCurrentPhaseId] = useState(starter?.phases?.[0]?.id || "phase1");
+  const [phase, setPhase] = useState(null);
+  const phases = useMemo(() => starter?.phases || [], []);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const ph = await loadPhase(currentPhaseId);
+      if (mounted) setPhase(ph || null);
+    })();
+    return () => { mounted = false; };
+  }, [currentPhaseId]);
+
   return (
-    <div className="min-h-screen bg-base-200 text-base-content">
-      <header className="sticky top-0 z-10 backdrop-blur bg-base-100/80 border-b border-base-300">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="font-semibold tracking-tight">🏠 Study Hub</div>
-          <div className="ml-auto">
-            <Link to="/" className="btn btn-sm btn-ghost">Notes</Link>
+    <div className="p-4 sm:p-6">
+      {/* Tabs */}
+      <div role="tablist" className="tabs tabs-boxed mb-4">
+        <button
+          role="tab"
+          className={`tab ${view === "overview" ? "tab-active" : ""}`}
+          onClick={() => setView("overview")}
+        >
+          Overview
+        </button>
+        <button
+          role="tab"
+          className={`tab ${view === "notes" ? "tab-active" : ""}`}
+          onClick={() => setView("notes")}
+        >
+          Notes
+        </button>
+      </div>
+
+      {view === "overview" ? (
+        <Overview />
+      ) : (
+        <div className="space-y-6">
+          {/* Phase selector (no search here) */}
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {phases.map((p) => (
+              <button
+                key={p.id}
+                className={`btn btn-sm ${currentPhaseId === p.id ? "btn-primary" : "btn-outline"}`}
+                onClick={() => setCurrentPhaseId(p.id)}
+              >
+                {p.title}
+              </button>
+            ))}
           </div>
-        </div>
-      </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-3">Your Spaces</h1>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <Tile
-            to="/"
-            emoji="🛡️"
-            title="Cybersecurity Notes"
-            subtitle="Intro & Bootcamp"
-          />
-          <Tile
-            to="/se-coming-soon"
-            emoji="💻"
-            title="Software Engineering"
-            subtitle="Coming soon…"
-          />
-          <Tile
-            to="/portfolio"
-            emoji="🌐"
-            title="Portfolio"
-            subtitle="Link or embed later"
-          />
+          {/* Modules grid for the selected phase */}
+          {!phase ? (
+            <div className="text-base-content/70">Loading phase…</div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {(phase.modules || []).map((m) => (
+                <Link
+                  key={m.id}
+                  to={`/phase/${currentPhaseId}/${m.id}`}
+                  className="card bg-base-200 hover:bg-base-300 border border-base-300/60 transition-colors"
+                >
+                  <div className="card-body">
+                    <h3 className="card-title">{m.title}</h3>
+                    <p className="text-base-content/70">Open module</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
-
-        <h2 className="text-lg font-semibold mt-6 mb-2">Cybersecurity shortcuts</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-          <Tile to="/#notes" emoji="📒" title="Bootcamp Notes" subtitle="Jump to notes" />
-          <Tile to="/#overview" emoji="🧭" title="Overview" subtitle="Phase guide" />
-        </div>
-      </main>
+      )}
     </div>
   );
 }
