@@ -1,6 +1,6 @@
 // src/App.jsx
 import { useEffect, useMemo, useState } from "react";
-import { HashRouter, Routes, Route, useNavigate, useParams, Link } from "react-router-dom";
+import { HashRouter, Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
 
 import { starter } from "./data/starter";
 import { LS_KEY, minutesToHMS } from "./utils/format";
@@ -15,22 +15,11 @@ import Overview from "./components/Overview";
 import { overview } from "./data/overview";
 
 // Pages
-import DayPage from "./pages/DayPage";
 import HomeHub from "./pages/HomeHub";
 
-function filterModules(modules, term) {
-  const q = term.trim().toLowerCase();
-  if (!q) return modules || [];
-  return (modules || [])
-    .map((m) => ({
-      ...m,
-      sections: (m.sections || [])
-        .map((s) => ({ ...s, items: (s.items || []).filter((it) => (it.title || "").toLowerCase().includes(q)) }))
-        .filter((s) => (s.items || []).length > 0),
-    }))
-    .filter((m) => (m.sections || []).length > 0);
-}
-
+/* =============================== */
+/* helpers                         */
+/* =============================== */
 function moduleStats(module, store) {
   let total = 0, done = 0;
   (module.sections || []).forEach((s) =>
@@ -43,33 +32,16 @@ function moduleStats(module, store) {
   return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
 }
 
-function dayKeyFromSectionId(id = "") {
-  const parts = id.split("-");
-  const dIndex = parts.findIndex((p) => /^d\d+$/i.test(p));
-  if (dIndex > 0) return parts.slice(0, dIndex + 1).join("-");
-  return null;
-}
-
-function daysFromModule(module) {
-  const set = new Set();
-  (module.sections || []).forEach((s) => {
-    const key = dayKeyFromSectionId(s.id);
-    if (key) set.add(key);
-  });
-  return Array.from(set);
-}
-
 /* =============================== */
 /* Home (Overview / Notes)         */
 /* =============================== */
 function HomeView({
   data, setData,
-  store, setStore,
+  store,
   phaseId, setPhaseId,
-  q, setQ,
   view, setView,
 }) {
-  // lazy-load phase
+  // lazy-load phase on select
   useEffect(() => {
     const p = data.phases.find((x) => x.id === phaseId);
     if (!p || (p.modules && p.modules.length > 0)) return;
@@ -103,11 +75,6 @@ function HomeView({
     return { total, done, pct: total ? (done / total) * 100 : 0, time };
   }, [current, store]);
 
-  const visibleModules = useMemo(
-    () => filterModules(current.modules || [], q),
-    [current, q]
-  );
-
   const navigate = useNavigate();
 
   return (
@@ -133,18 +100,8 @@ function HomeView({
           </div>
 
           <div className="ml-auto flex items-center gap-3">
-            {view === "notes" && (
-              <div className="relative">
-                <Icon name="search" className="w-4 h-4 absolute left-2 top-2.5 opacity-50" />
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Smart Search (title)…"
-                  className="pl-7 pr-3 py-2 rounded-lg input input-bordered bg-base-100 w-56 text-sm"
-                />
-              </div>
-            )}
-            <ThemeSwitcher />
+            {/* search removed from phases/notes page by request */}
+            <ThemeSwitcher subject="cyber" />
           </div>
         </div>
       </header>
@@ -210,14 +167,13 @@ function HomeView({
                 </div>
               </div>
 
-              {/* Modules grid + day buttons */}
+              {/* Modules grid (no day buttons, no search here) */}
               {(current.modules || []).length > 0 ? (
                 <>
                   <h3 className="text-xs font-semibold opacity-70 mb-2">Modules</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {filterModules(current.modules || [], q).map((mod) => {
+                    {(current.modules || []).map((mod) => {
                       const st = moduleStats(mod, store);
-                      const dayKeys = daysFromModule(mod);
                       return (
                         <div key={`btn-${mod.id}`} className="rounded-xl border border-base-300 bg-base-100 p-3 shadow-sm">
                           <button
@@ -230,24 +186,6 @@ function HomeView({
                               {st.done}/{st.total} • {st.pct}%
                             </div>
                           </button>
-
-                          {dayKeys.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {dayKeys.map((dk) => {
-                                const dayMatch = dk.match(/d(\d+)/i);
-                                const label = dayMatch ? `Day ${dayMatch[1]}` : dk.replace(/-/g, " ");
-                                return (
-                                  <button
-                                    key={dk}
-                                    className="btn btn-xs"
-                                    onClick={() => navigate(`/phase/${current.id}/module/${mod.id}/day/${dk}`)}
-                                  >
-                                    {label}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -269,6 +207,7 @@ function HomeView({
 /* =============================== */
 function ModulePage({ data, setData, store, setStore }) {
   const { phaseId, moduleId } = useParams();
+  const navigate = useNavigate();
 
   const phase = useMemo(
     () => data.phases.find((p) => p.id === phaseId),
@@ -288,30 +227,67 @@ function ModulePage({ data, setData, store, setStore }) {
     return () => { cancelled = true; };
   }, [phase, phaseId, setData]);
 
-  const module = useMemo(() => (phase?.modules || []).find((m) => m.id === moduleId), [phase, moduleId]);
+  const module = useMemo(
+    () => (phase?.modules || []).find((m) => m.id === moduleId),
+    [phase, moduleId]
+  );
+
+  // local, module-scoped search
+  const [mq, setMq] = useState("");
+  const filteredModule = useMemo(() => {
+    if (!module) return module;
+    const q = mq.trim().toLowerCase();
+    if (!q) return module;
+    const sections = (module.sections || [])
+      .map((s) => ({
+        ...s,
+        items: (s.items || []).filter((it) =>
+          (it.title || "").toLowerCase().includes(q)
+        ),
+      }))
+      .filter((s) => (s.items || []).length > 0);
+    return { ...module, sections };
+  }, [module, mq]);
 
   return (
     <div className="min-h-screen bg-base-200 text-base-content">
+      {/* Header: ONLY brand + theme */}
       <header className="sticky top-0 z-10 backdrop-blur bg-base-100/80 border-b border-base-300">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">⚡ Cyber Phases Notes</Link>
           <div className="ml-auto">
-            <Link to="/" className="btn btn-sm">← Back</Link>
+            <ThemeSwitcher subject="cyber" />
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-4">
+        {/* Back button on its own line (not in the header row) */}
+        <div className="mb-2">
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate("/cyber")}>← Back</button>
+        </div>
+
         {!phase || !module ? (
           <Spinner label="Loading module…" />
         ) : (
           <>
-            <div className="mb-4">
+            <div className="mb-3">
               <div className="text-xs opacity-70">{phase.title}</div>
               <h1 className="text-xl font-bold">{module.title}</h1>
             </div>
 
-            <ModuleBlock module={module} store={store} setStore={setStore} />
+            {/* module-scoped search */}
+            <div className="mb-3 relative">
+              <Icon name="search" className="w-4 h-4 absolute left-3 top-2.5 opacity-50" />
+              <input
+                className="input input-bordered w-full pl-8"
+                placeholder="Search in this module…"
+                value={mq}
+                onChange={(e) => setMq(e.target.value)}
+              />
+            </div>
+
+            <ModuleBlock module={filteredModule} store={store} setStore={setStore} />
           </>
         )}
       </main>
@@ -326,7 +302,6 @@ export default function App() {
   const [data, setData] = useState(starter);
   const [store, setStore] = useState({ items: {} });
   const [phaseId, setPhaseId] = useState(starter.phases[0].id);
-  const [q, setQ] = useState("");
   const [view, setView] = useState("overview");
 
   // load saved
@@ -346,29 +321,56 @@ export default function App() {
     localStorage.setItem(LS_KEY, JSON.stringify({ data, store, phaseId }));
   }, [data, store, phaseId]);
 
+  // wrapper for the Cyber app so it lives at /cyber
+  const CyberApp = (
+    <HomeView
+      data={data}
+      setData={setData}
+      store={store}
+      setStore={setStore}
+      phaseId={phaseId}
+      setPhaseId={setPhaseId}
+      view={view}
+      setView={setView}
+    />
+  );
+
+  // tiny placeholder so Software Dev nav has a route to hit
+  function SoftwareAppPlaceholder() {
+    return (
+      <div className="min-h-screen bg-base-200 text-base-content">
+        <header className="sticky top-0 z-10 backdrop-blur bg-base-100/80 border-b border-base-300">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+            <Link to="/hub" className="font-semibold tracking-tight hover:opacity-80">🛠️ Software Dev Notes</Link>
+            <div className="ml-auto">
+              <ThemeSwitcher subject="software" />
+            </div>
+          </div>
+        </header>
+        <main className="max-w-4xl mx-auto px-4 py-6">
+          <p className="opacity-80">
+            Software Dev space coming next. Add its data + pages, then replace this placeholder.
+          </p>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <HashRouter>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <HomeView
-              data={data}
-              setData={setData}
-              store={store}
-              setStore={setStore}
-              phaseId={phaseId}
-              setPhaseId={setPhaseId}
-              q={q}
-              setQ={setQ}
-              view={view}
-              setView={setView}
-            />
-          }
-        />
+        {/* Hub is the landing page */}
+        <Route path="/" element={<Navigate to="/hub" replace />} />
         <Route path="/hub" element={<HomeHub />} />
+
+        {/* Cyber app lives under /cyber */}
+        <Route path="/cyber" element={CyberApp} />
         <Route path="/phase/:phaseId/module/:moduleId" element={<ModulePage data={data} setData={setData} store={store} setStore={setStore} />} />
-        <Route path="/phase/:phaseId/module/:moduleId/day/:dayKey" element={<DayPage data={data} setData={setData} store={store} setStore={setStore} />} />
+
+        {/* Software Dev placeholder so navigation works */}
+        <Route path="/software/*" element={<SoftwareAppPlaceholder />} />
+
+        {/* catch-all */}
         <Route path="*" element={<HomeHub />} />
       </Routes>
     </HashRouter>
