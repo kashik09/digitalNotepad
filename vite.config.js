@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   base: '/digitalNotepad/',
-  plugins: [react()],
+  plugins: [react()]
 })
