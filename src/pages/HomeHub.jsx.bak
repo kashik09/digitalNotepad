@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Overview from "../components/Overview.jsx";
+import Spinner from "../components/Spinner.jsx";
 import loadPhase from "../data/loadPhase.js";
 import starter from "../data/starter.js";
 
@@ -16,7 +17,9 @@ export default function HomeHub() {
       const ph = await loadPhase(currentPhaseId);
       if (mounted) setPhase(ph || null);
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [currentPhaseId]);
 
   return (
@@ -58,13 +61,13 @@ export default function HomeHub() {
 
           {/* Modules grid for the selected phase */}
           {!phase ? (
-            <div className="text-base-content/70">Loading phase…</div>
+            <Spinner label="Loading phase…" />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {(phase.modules || []).map((m) => (
                 <Link
                   key={m.id}
-                  to={`/phase/${currentPhaseId}/${m.id}`}
+                  to={`/phase/${currentPhaseId}/module/${m.id}`}
                   className="card bg-base-200 hover:bg-base-300 border border-base-300/60 transition-colors"
                 >
                   <div className="card-body">

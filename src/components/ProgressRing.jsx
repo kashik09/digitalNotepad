@@ -1,18 +1,14 @@
-import { clamp } from "../utils/format";
-
-export function ProgressRing({ value }) {
-  const radius = 26, stroke = 6, norm = radius - stroke / 2;
-  const circ = 2 * Math.PI * norm;
-  const pct = clamp(value, 0, 100) / 100;
+export default function ProgressRing({ value = 0, size = "md", label = true }) {
+  const v = Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+  const sizeClass = size === "sm" ? "w-10 h-10" : size === "lg" ? "w-20 h-20" : "w-14 h-14";
   return (
-    <svg className="w-16 h-16" viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
-      <circle cx={radius} cy={radius} r={norm} stroke="#e5e7eb" strokeWidth={stroke} fill="none" />
-      <circle cx={radius} cy={radius} r={norm} stroke="currentColor" strokeWidth={stroke} fill="none"
-              strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)}
-              className="text-blue-500 transition-all duration-300" />
-      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="text-sm fill-gray-700">
-        {Math.round(pct * 100)}%
-      </text>
-    </svg>
+    <div
+      className={`radial-progress ${sizeClass} text-primary`}
+      style={{ "--value": v }}
+      role="img"
+      aria-label={`Progress ${v}%`}
+    >
+      {label ? `${v}%` : null}
+    </div>
   );
 }
