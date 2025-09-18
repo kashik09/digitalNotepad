@@ -1,7 +1,9 @@
 import { HashRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./theme/ThemeProvider.jsx";
 import ThemeSwitcher from "./components/ThemeSwitcher.jsx";
+import Hub from "./pages/Hub.jsx";
 import HomeHub from "./pages/HomeHub.jsx";
+import SoftwareApp from "./pages/SoftwareApp.jsx";
 import ModuleView from "./pages/ModuleView.jsx";
 
 export default function App() {
@@ -19,7 +21,9 @@ export default function App() {
 
         <HashRouter>
           <Routes>
-            <Route path="/" element={<HomeHub />} />
+            <Route path="/" element={<Hub />} />
+            <Route path="/cyber" element={<HomeHub />} />
+            <Route path="/software" element={<SoftwareApp />} />
             <Route path="/phase/:phaseId/module/:moduleId" element={<ModuleView />} />
           </Routes>
         </HashRouter>
