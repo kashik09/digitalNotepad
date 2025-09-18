@@ -1,4 +1,4 @@
-import OverviewSoftware from "../components/OverviewSoftware.jsx";
+import Overview from "../components/Overview.jsx";
 
 export default function SoftwareApp() {
   return (
@@ -6,10 +6,10 @@ export default function SoftwareApp() {
       <div className="mb-4">
         <h1 className="text-xl font-semibold">Software Development</h1>
         <p className="text-base-content/70">
-          Your Software Dev space with its own themes and overview.
+          This is your Software Dev area. We’ll hook custom themes and notes here next.
         </p>
       </div>
-      <OverviewSoftware />
+      <Overview />
     </div>
   );
 }
