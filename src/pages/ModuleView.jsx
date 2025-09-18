@@ -1,0 +1,66 @@
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import Spinner from "../components/Spinner.jsx";
+import ModuleBlock from "../components/ModuleBlock.jsx";
+import loadPhase from "../data/loadPhase.js";
+
+export default function ModuleView() {
+  const nav = useNavigate();
+  const { phaseId, moduleId } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [phase, setPhase] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const ph = await loadPhase(phaseId);
+        if (mounted) setPhase(ph || null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [phaseId]);
+
+  const mod = useMemo(() => {
+    if (!phase || !Array.isArray(phase.modules)) return null;
+    return phase.modules.find(m => String(m.id) === String(moduleId)) || null;
+  }, [phase, moduleId]);
+
+  if (loading) return <Spinner screen label="Loading module…" />;
+
+  if (!phase || !mod) {
+    return (
+      <div className="p-6">
+        <div className="mb-3">
+        </div>
+        <div className="alert alert-warning">
+          <span>Module not found. Check the phase and module IDs.</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pb-8">
+      {/* Back toolbar on its own line */}
+      <div className="px-4 pt-4">
+        <button className="btn btn-ghost btn-sm" onClick={() => nav(-1)}>← Back</button>
+      </div>
+
+      {/* Module header (separate from Back) */}
+      <header className="px-4 pt-2 pb-4">
+        <h1 className="text-xl font-semibold text-base-content">
+          {phase.title} · {mod.title}
+        </h1>
+      </header>
+
+      {/* The actual module content */}
+      <div className="px-4">
+        <ModuleBlock module={mod} />
+      </div>
+    </div>
+  );
+}
