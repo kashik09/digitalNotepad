@@ -1,15 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner.jsx";
+import ProgressRing from "../components/ProgressRing.jsx";
 import ModuleBlock from "../components/ModuleBlock.jsx";
 import loadPhase from "../data/loadPhase.js";
+import { LS_KEY } from "../utils/format.js";
+
+function modulePercent(mod) {
+  // compute % done from localStorage items, ignoring 'discussion'
+  const raw = localStorage.getItem(LS_KEY);
+  let itemsStore = {};
+  try {
+    itemsStore = JSON.parse(raw || "{}")?.items || {};
+  } catch {}
+  let total = 0;
+  let done = 0;
+  for (const sec of mod?.sections || []) {
+    for (const it of sec?.items || []) {
+      if (!it || it.type === "discussion") continue;
+      total += 1;
+      if (itemsStore[it.id]?.done) done += 1;
+    }
+  }
+  return total ? Math.round((done / total) * 100) : 0;
+}
 
 export default function ModuleView() {
   const nav = useNavigate();
   const { phaseId, moduleId } = useParams();
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState(null);
-  const [q, setQ] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -36,6 +56,7 @@ export default function ModuleView() {
     return (
       <div className="p-6">
         <div className="mb-3">
+          <button className="btn btn-ghost btn-sm" onClick={() => nav("#/") || nav("/")}>← Back</button>
         </div>
         <div className="alert alert-warning">
           <span>Module not found. Check the phase and module IDs.</span>
@@ -44,6 +65,8 @@ export default function ModuleView() {
     );
   }
 
+  const pct = modulePercent(mod);
+
   return (
     <div className="pb-8">
       {/* Back toolbar on its own line */}
@@ -51,26 +74,19 @@ export default function ModuleView() {
         <button className="btn btn-ghost btn-sm" onClick={() => nav(-1)}>← Back</button>
       </div>
 
-      {/* Module header */}
-      <header className="px-4 pt-2">
-        <h1 className="text-xl font-semibold text-base-content">
-          {phase.title} · {mod.title}
-        </h1>
+      {/* Module header (separate from Back) */}
+      <header className="px-4 pt-2 pb-4">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl font-semibold text-base-content">
+            {phase.title} · {mod.title}
+          </h1>
+          <ProgressRing value={pct} size="sm" />
+        </div>
       </header>
 
-      {/* Scoped search just for this module */}
-      <div className="px-4 pt-3 pb-2">
-        <input
-          className="input input-bordered w-full sm:max-w-lg"
-          placeholder="Search in this module…"
-          value={q}
-          onChange={e => setQ(e.target.value)}
-        />
-      </div>
-
-      {/* Module content (filtered by q) */}
+      {/* The actual module content */}
       <div className="px-4">
-        <ModuleBlock module={mod} query={q} />
+        <ModuleBlock module={mod} />
       </div>
     </div>
   );
