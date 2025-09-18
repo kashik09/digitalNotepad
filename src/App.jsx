@@ -1,38 +1,54 @@
 import { useEffect, useMemo, useState } from "react";
-import { HashRouter, Routes, Route, useNavigate, useParams, Link } from "react-router-dom";
+import { HashRouter, Routes, Route, Link, useNavigate, useParams } from "react-router-dom";
 
 import { starter } from "./data/starter";
-import { LS_KEY } from "./utils/format";
-import { ModuleBlock } from "./components/ModuleBlock";
-import { Icon } from "./components/Icon";
-import { loadPhase } from "./data/loadPhase";
+import { LS_KEY, minutesToHMS } from "./utils/format";
+import ModuleBlock from "./components/ModuleBlock";
 import Spinner from "./components/Spinner";
+import ThemePicker from "./components/ThemePicker";
+import { ThemeProvider } from "./theme/ThemeProvider";
 
-// Overview screen
 import Overview from "./components/Overview";
 import { overview } from "./data/overview";
+import { loadPhase } from "./data/loadPhase";
 
-// ------------------------ helpers
+/* ============ Utilities ============ */
+
 function filterModules(modules, term) {
-  const q = term.trim().toLowerCase();
+  const q = (term || "").trim().toLowerCase();
   if (!q) return modules || [];
   return (modules || [])
     .map((m) => ({
       ...m,
       sections: (m.sections || [])
-        .map((s) => ({
-          ...s,
-          items: (s.items || []).filter((it) => (it.title || "").toLowerCase().includes(q)),
-        }))
+        .map((s) => ({ ...s, items: (s.items || []).filter((it) => (it.title || "").toLowerCase().includes(q)) }))
         .filter((s) => (s.items || []).length > 0),
     }))
     .filter((m) => (m.sections || []).length > 0);
+}
+
+// group sections by day using flexible patterns
+function groupByDay(sections = []) {
+  const out = {};
+  const normalize = (v) => (v && String(v)) || "";
+  sections.forEach((s) => {
+    const hay = `${normalize(s.title)} ${normalize(s.id)}`;
+    let day = /day[\s\-]*(\d+)/i.exec(hay)?.[1]
+           || /\bD(?:ay)?[\s\-]?(\d+)\b/i.exec(hay)?.[1]
+           || null;
+    if (!day) day = "general";
+    const key = `day-${day}`;
+    if (!out[key]) out[key] = { key, title: day === "general" ? "General" : `Day ${day}`, sections: [] };
+    out[key].sections.push(s);
+  });
+  return out;
 }
 
 function moduleStats(module, store) {
   let total = 0, done = 0;
   (module.sections || []).forEach((s) =>
     (s.items || []).forEach((it) => {
+      if (it.type === "discussion") return;
       total++;
       if (store.items[it.id]?.done) done++;
     })
@@ -40,205 +56,166 @@ function moduleStats(module, store) {
   return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
 }
 
-// very forgiving “day” grouper. Matches “Day 1”, “DAY 2”, “SYS100 Day 1 — …”, etc.
-function groupSectionsByDay(sections = []) {
-  const days = [];
-  const other = [];
-  const dayRegex = /day\s*(\d+)/i;
+/* ============ Notes JSON DB (subjects) ============ */
+/* Shape:
+{
+  subjects: {
+    cyber: { items: { [itemId]: {done, notes} } },
+    sweng: { ... },
+  }
+}
+*/
+const DB_KEY = "notes_db_v1";
 
-  sections.forEach((s) => {
-    const m = (s.title || "").match(dayRegex);
-    if (m) {
-      const idx = Number(m[1]);
-      const key = `day-${idx}`;
-      let bucket = days.find((d) => d.key === key);
-      if (!bucket) {
-        bucket = { key, index: idx, title: `Day ${idx}`, sections: [] };
-        days.push(bucket);
-      }
-      bucket.sections.push(s);
-    } else {
-      other.push(s);
-    }
+function useJsonDB() {
+  const [db, setDb] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(DB_KEY)) || { subjects: { cyber: { items: {} } } }; }
+    catch { return { subjects: { cyber: { items: {} } } }; }
   });
 
-  days.sort((a, b) => a.index - b.index);
-  if (other.length) days.push({ key: "general", index: 999, title: "General", sections: other });
-  return days;
-}
+  useEffect(() => { localStorage.setItem(DB_KEY, JSON.stringify(db)); }, [db]);
 
-// ------------------------ theme
-function useTheme() {
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") root.classList.add("dark");
-    else root.classList.remove("dark");
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-  return { theme, setTheme };
-}
-
-// ===============================
-// Home (Overview / Notes)
-// ===============================
-function HomeView({
-  data, setData,
-  store, setStore,
-  phaseId, setPhaseId,
-  q, setQ,
-  view, setView,
-  themeHook,
-}) {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-
-  // lazy-load selected phase
-  useEffect(() => {
-    const p = data.phases.find((x) => x.id === phaseId);
-    if (!p || (p.modules && p.modules.length > 0)) return;
-
-    let cancelled = false;
-    setLoading(true);
-    loadPhase(phaseId)
-      .then((full) => {
-        if (cancelled) return;
-        setData((prev) => ({
-          ...prev,
-          phases: prev.phases.map((x) => (x.id === phaseId ? full : x)),
-        }));
-      })
-      .catch((e) => console.error("Failed to load phase", phaseId, e))
-      .finally(() => !cancelled && setLoading(false));
-
-    return () => { cancelled = true; };
-  }, [phaseId, data.phases, setData]);
-
-  const current = useMemo(
-    () => data.phases.find((p) => p.id === phaseId) || data.phases[0],
-    [data, phaseId]
-  );
-
-  const visibleModules = useMemo(
-    () => filterModules(current.modules || [], q),
-    [current, q]
-  );
-
-  function doExport() {
-    const blob = new Blob([JSON.stringify({ data, store }, null, 2)], { type: "application/json" });
+  function exportDb() {
+    const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `cyber-notes-${new Date().toISOString().slice(0,10)}.json`; a.click();
+    a.href = url; a.download = `notes-db-${new Date().toISOString().slice(0,10)}.json`; a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
   }
-  function doImport(e) {
-    const file = e.target.files?.[0]; if (!file) return;
+  function importDb(file) {
     const reader = new FileReader();
     reader.onload = () => {
       try {
         const obj = JSON.parse(String(reader.result));
-        if (obj.data?.phases) setData(obj.data);
-        if (obj.store?.items) setStore(obj.store);
-      } catch { alert("Invalid JSON file"); }
+        if (obj?.subjects) setDb(obj);
+      } catch { alert("Invalid DB JSON"); }
     };
     reader.readAsText(file);
   }
 
-  // map course code (NET100) -> module in phase
-  function jumpToCourse(pid, courseCode) {
-    const ph = data.phases.find((p) => p.id === pid);
-    const mod = (ph?.modules || []).find(
-      (m) => (m.badge && String(m.badge).toUpperCase() === courseCode.toUpperCase())
-        || (m.title || "").toUpperCase().includes(courseCode.toUpperCase())
-    );
-    if (mod) {
-      setPhaseId(pid);
-      setView("notes");
-      navigate(`/phase/${pid}/module/${mod.id}`);
-    } else {
-      // fallback: just jump to phase
-      setPhaseId(pid);
-      setView("notes");
-    }
-  }
+  return { db, setDb, exportDb, importDb };
+}
 
+/* ================= HUB (Home) ================= */
+function Hub({ exportDb, importDb }) {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-      {/* ===== Header ===== */}
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/80 dark:bg-gray-900/80 border-b dark:border-gray-800">
+    <div className="min-h-screen bg-base-200 text-base-content">
+      <header className="sticky top-0 z-10 backdrop-blur bg-base-100/90 border-b border-base-300">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="font-semibold tracking-tight">⚡ Cyber Phases Notes</div>
-
-          {/* Tabs */}
-          <div className="ml-4 flex rounded-lg overflow-hidden border dark:border-gray-700">
-            <button
-              onClick={() => setView("overview")}
-              className={`px-3 py-1.5 text-sm ${view === "overview" ? "bg-gray-100 dark:bg-gray-800 font-medium" : "bg-white dark:bg-gray-900"}`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setView("notes")}
-              className={`px-3 py-1.5 text-sm ${view === "notes" ? "bg-gray-100 dark:bg-gray-800 font-medium" : "bg-white dark:bg-gray-900"}`}
-            >
-              Notes
-            </button>
-          </div>
-
+          <div className="font-semibold tracking-tight">🏠 Notes Hub</div>
           <div className="ml-auto flex items-center gap-2">
-            {/* theme toggle */}
-            <button
-              onClick={() => themeHook.setTheme(themeHook.theme === "dark" ? "light" : "dark")}
-              className="px-2 py-1.5 rounded-lg border text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700"
-              title="Toggle theme"
-            >
-              {themeHook.theme === "dark" ? "🌙" : "☀️"}
-            </button>
-
-            {view === "notes" && (
-              <>
-                <div className="relative">
-                  <Icon name="search" className="w-4 h-4 absolute left-2 top-2.5 text-gray-400" />
-                  <input
-                    value={q}
-                    onChange={(e) => setQ(e.target.value)}
-                    placeholder="Smart Search (title)…"
-                    className="pl-7 pr-3 py-2 rounded-lg border bg-white dark:bg-gray-900 dark:border-gray-700 w-56 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-                <button onClick={doExport} className="px-2.5 py-2 rounded-lg border text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700">
-                  Export
-                </button>
-                <label className="px-2.5 py-2 rounded-lg border text-sm hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700 cursor-pointer">
-                  Import
-                  <input type="file" accept="application/json" className="hidden" onChange={doImport} />
-                </label>
-              </>
-            )}
+            <ThemePicker />
+            <label className="btn btn-sm">
+              Import DB
+              <input type="file" accept="application/json" className="hidden" onChange={(e)=>e.target.files[0]&&importDb(e.target.files[0])}/>
+            </label>
+            <button className="btn btn-sm" onClick={exportDb}>Export DB</button>
           </div>
         </div>
       </header>
 
-      {/* ===== Body ===== */}
+      <main className="max-w-6xl mx-auto px-4 py-6">
+        <h1 className="text-2xl font-bold mb-4">Your spaces</h1>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Link to="/cyber" className="card bg-base-100 border border-base-300 hover:shadow transition">
+            <div className="card-body">
+              <div className="font-semibold text-lg">🛡️ Cybersecurity</div>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Link to="/cyber/intro" className="btn btn-sm">Intro</Link>
+                <Link to="/cyber/bootcamp" className="btn btn-sm btn-primary">Bootcamp</Link>
+              </div>
+            </div>
+          </Link>
+
+          <Link to="/sweng" className="card bg-base-100 border border-base-300 hover:shadow transition">
+            <div className="card-body">
+              <div className="font-semibold text-lg">💻 Software Engineering</div>
+              <p className="text-sm opacity-70">Keep project + study notes here.</p>
+            </div>
+          </Link>
+
+          <a href="https://your-portfolio.example" target="_blank" rel="noreferrer"
+             className="card bg-base-100 border border-base-300 hover:shadow transition">
+            <div className="card-body">
+              <div className="font-semibold text-lg">🌐 Portfolio</div>
+              <p className="text-sm opacity-70">Open your web portfolio (link).</p>
+            </div>
+          </a>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+/* ================= CYBER → BOOTCAMP ================= */
+
+function BootcampHome({
+  data, setData, store, setStore,
+  phaseId, setPhaseId, q, setQ, view, setView,
+}) {
+  // lazy-load phase on open
+  useEffect(() => {
+    const p = data.phases.find((x) => x.id === phaseId);
+    if (!p || (p.modules && p.modules.length > 0)) return;
+    let cancelled = false;
+    loadPhase(phaseId)
+      .then((full) => {
+        if (cancelled) return;
+        setData((prev) => ({ ...prev, phases: prev.phases.map((x) => (x.id === phaseId ? full : x)) }));
+      })
+      .catch((e) => console.error("Failed to load phase", phaseId, e));
+    return () => { cancelled = true; };
+  }, [phaseId, data.phases, setData]);
+
+  const current = useMemo(() => data.phases.find((p) => p.id === phaseId) || data.phases[0], [data, phaseId]);
+
+  const phaseProgress = useMemo(() => {
+    let total = 0, done = 0, time = 0;
+    (current.modules || []).forEach((m) =>
+      (m.sections || []).forEach((s) =>
+        (s.items || []).forEach((it) => {
+          if (it.type === "discussion") return;
+          total++;
+          if (store.items[it.id]?.done) done++;
+          if (it.meta?.timeMin) time += it.meta.timeMin;
+        })
+      )
+    );
+    return { total, done, pct: total ? (done / total) * 100 : 0, time };
+  }, [current, store]);
+
+  const navigate = useNavigate();
+
+  return (
+    <div className="min-h-screen bg-base-200 text-base-content">
+      <header className="sticky top-0 z-10 backdrop-blur bg-base-100/90 border-b border-base-300">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link to="/" className="btn btn-sm">← Hub</Link>
+          <div className="font-semibold tracking-tight">⚡ Cyber Bootcamp</div>
+          <div className="ml-2 rounded-lg border border-base-300 overflow-hidden">
+            <button onClick={() => setView("overview")} className={`px-3 py-1.5 text-sm ${view === "overview" ? "bg-base-200 font-medium" : ""}`}>Overview</button>
+            <button onClick={() => setView("notes")} className={`px-3 py-1.5 text-sm ${view === "notes" ? "bg-base-200 font-medium" : ""}`}>Notes</button>
+          </div>
+          <div className="ml-auto"><ThemePicker /></div>
+        </div>
+      </header>
+
       <main className="max-w-6xl mx-auto px-4 py-4">
         {view === "overview" ? (
-          <Overview
-            data={overview}
-            activePhaseId={phaseId}
-            onJumpToPhase={(pid) => { setPhaseId(pid); setView("notes"); }}
-            onJumpToCourse={jumpToCourse}
-          />
+          <Overview data={overview} activePhaseId={phaseId} onJumpToPhase={(pid) => { setPhaseId(pid); setView("notes"); }} />
         ) : (
           <>
-            {/* Phases bar */}
+            {/* Phase grid */}
             <section aria-label="Phases" className="mb-4">
-              <h2 className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">Phases</h2>
+              <h2 className="text-xs font-semibold text-base-content/70 mb-2">Phases</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {data.phases.map((p) => {
                   let total = 0, done = 0;
                   (p.modules || []).forEach((m) =>
                     (m.sections || []).forEach((s) =>
                       (s.items || []).forEach((it) => {
+                        if (it.type === "discussion") return;
                         total++;
                         if (store.items[it.id]?.done) done++;
                       })
@@ -246,65 +223,49 @@ function HomeView({
                   );
                   const pct = total ? Math.round((done / total) * 100) : 0;
                   const active = p.id === phaseId;
-
                   return (
-                    <button
-                      key={p.id}
-                      onClick={() => setPhaseId(p.id)}
-                      className={[
-                        "text-left rounded-xl border bg-white dark:bg-gray-900 p-3 shadow-sm hover:shadow transition",
-                        active ? "ring-2 ring-blue-400 border-blue-200 dark:ring-blue-500" : "border-gray-200 dark:border-gray-700"
-                      ].join(" ")}
-                    >
-                      <div className="text-sm font-semibold truncate">{p.title}</div>
-                      <div className="text-xs text-gray-500 truncate">{p.subtitle || ""}</div>
-                      <div className="mt-2 text-xs text-gray-600 dark:text-gray-300">{pct}% complete</div>
+                    <button key={p.id} onClick={() => setPhaseId(p.id)}
+                      className={`text-left rounded-xl border p-3 shadow-sm hover:shadow transition ${active ? "ring-2 ring-primary border-primary/30" : "border-base-300 bg-base-100"}`}>
+                      <div className="text-sm font-semibold">{p.title}</div>
+                      <div className="text-xs opacity-70">{p.subtitle || ""}</div>
+                      <div className="mt-2 text-xs">{pct}% complete</div>
                     </button>
                   );
                 })}
               </div>
             </section>
 
-            {/* Current phase header */}
+            {/* Current phase header + module buttons */}
             <section>
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h1 className="text-xl font-bold">{current.title}</h1>
-                  <div className="text-sm text-gray-500">{current.subtitle || ""}</div>
+                  <div className="text-sm opacity-70">{current.subtitle || ""}</div>
                 </div>
                 <div className="flex gap-2 text-xs">
-                  {/* Keeping only % on module cards; header can be clean */}
-                  {loading ? <Spinner /> : null}
+                  <span className="px-2 py-0.5 rounded-full bg-base-200">{minutesToHMS(phaseProgress.time)}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-base-200">{Math.round(phaseProgress.pct)}%</span>
                 </div>
               </div>
 
-              {/* Module buttons */}
               {(current.modules || []).length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {visibleModules.map((mod) => {
-                    const st = moduleStats(mod, store);
-                    return (
-                      <button
-                        key={`btn-${mod.id}`}
-                        onClick={() => {
-                          // ensure phase in state for breadcrumbs
-                          setPhaseId(current.id);
-                          navigate(`/phase/${current.id}/module/${mod.id}`);
-                        }}
-                        className="text-left rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 shadow-sm hover:shadow transition"
-                        title={`Open ${mod.title}`}
-                      >
-                        <div className="text-sm font-semibold truncate">{mod.title}</div>
-                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-                          {st.pct}% complete
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-sm text-gray-500"><Spinner label="Loading phase…" /></div>
-              )}
+                <>
+                  <h3 className="text-xs font-semibold text-base-content/70 mb-2">Modules</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {filterModules(current.modules || [], "").map((mod) => {
+                      const st = moduleStats(mod, store);
+                      return (
+                        <button key={mod.id}
+                          onClick={() => navigate(`/cyber/bootcamp/phase/${current.id}/module/${mod.id}`)}
+                          className="text-left rounded-xl border border-base-300 bg-base-100 p-3 shadow-sm hover:shadow transition">
+                          <div className="text-sm font-semibold truncate">{mod.title}</div>
+                          <div className="mt-1 text-xs opacity-70">{st.done}/{st.total} • {st.pct}%</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (<div className="text-sm opacity-70">No modules yet.</div>)}
             </section>
           </>
         )}
@@ -313,88 +274,63 @@ function HomeView({
   );
 }
 
-// ===============================
-// Module Page → day buttons
-// ===============================
-function ModulePage({ data, setData, store }) {
+/* Module page */
+function ModulePage({ data, setData, store, setStore }) {
   const { phaseId, moduleId } = useParams();
-  const navigate = useNavigate();
-
-  const phase = useMemo(
-    () => data.phases.find((p) => p.id === phaseId),
-    [data.phases, phaseId]
-  );
-
-  // ensure lazy load
   const [loading, setLoading] = useState(false);
+
+  const phase = useMemo(() => data.phases.find((p) => p.id === phaseId), [data.phases, phaseId]);
+
   useEffect(() => {
     if (!phase || (phase.modules && phase.modules.length > 0)) return;
     let cancelled = false;
     setLoading(true);
-    loadPhase(phaseId)
-      .then((full) => {
-        if (cancelled) return;
-        setData((prev) => ({
-          ...prev,
-          phases: prev.phases.map((x) => (x.id === phaseId ? full : x)),
-        }));
-      })
-      .catch((e) => console.error("Failed to load phase", phaseId, e))
-      .finally(() => !cancelled && setLoading(false));
+    loadPhase(phaseId).then((full) => {
+      if (cancelled) return;
+      setData((prev) => ({ ...prev, phases: prev.phases.map((x) => (x.id === phaseId ? full : x)) }));
+    }).finally(() => setLoading(false));
     return () => { cancelled = true; };
   }, [phase, phaseId, setData]);
 
-  const mod = useMemo(() => (phase?.modules || []).find((m) => m.id === moduleId), [phase, moduleId]);
+  const module = useMemo(() => (phase?.modules || []).find((m) => m.id === moduleId), [phase, moduleId]);
 
-  const days = useMemo(() => groupSectionsByDay(mod?.sections || []), [mod]);
+  const navigate = useNavigate();
+  const days = useMemo(() => groupByDay(module?.sections || []), [module]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/80 dark:bg-gray-900/80 border-b dark:border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="font-semibold tracking-tight">⚡ Cyber Phases Notes</div>
-          <div className="ml-auto flex items-center gap-2">
-            <Link to="/" className="text-sm px-3 py-1.5 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700">← Back</Link>
-          </div>
+    <div className="min-h-screen bg-base-200 text-base-content">
+      <header className="sticky top-0 z-10 bg-base-100/90 border-b border-base-300 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2">
+          <Link to="/cyber/bootcamp" className="btn btn-sm">← Back</Link>
+          <div className="ml-2 text-xs opacity-70">{phase?.title}</div>
+          <div className="ml-auto"><ThemePicker /></div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-4">
-        {!phase || !mod ? (
+        {!phase || !module ? (
           <Spinner label="Loading module…" />
         ) : (
           <>
-            <div className="mb-4">
-              <div className="text-xs text-gray-500">{phase.title}</div>
-              <h1 className="text-xl font-bold">{mod.title}</h1>
+            <div className="mb-3">
+              <h1 className="text-xl font-bold">{module.title}</h1>
             </div>
 
-            <h2 className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">Days</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {days.map((d) => {
-                // compute % per day
-                let total = 0, done = 0;
-                (d.sections || []).forEach((s) =>
-                  (s.items || []).forEach((it) => {
-                    if (it.type === "discussion") return; // hide discussions
-                    total++;
-                    if (store.items[it.id]?.done) done++;
-                  })
-                );
-                const pct = total ? Math.round((done / total) * 100) : 0;
-
-                return (
-                  <button
-                    key={d.key}
-                    onClick={() => navigate(`/phase/${phaseId}/module/${moduleId}/day/${d.key}`)}
-                    className="text-left rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 shadow-sm hover:shadow transition"
-                  >
-                    <div className="text-sm font-semibold">{d.title}</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">{pct}% complete</div>
-                  </button>
-                );
-              })}
+            {/* Day buttons */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {Object.values(days).map((d) => (
+                <button
+                  key={d.key}
+                  onClick={() => navigate(`/cyber/bootcamp/phase/${phaseId}/module/${moduleId}/day/${d.key}`)}
+                  className="btn btn-sm"
+                  title={`Open ${d.title}`}
+                >
+                  {d.title}
+                </button>
+              ))}
             </div>
+
+            <ModuleBlock module={module} store={store} setStore={setStore} loading={loading}/>
           </>
         )}
       </main>
@@ -402,23 +338,29 @@ function ModulePage({ data, setData, store }) {
   );
 }
 
-// ===============================
-// Day Page → items with search
-// ===============================
-function DayPage({ data, store, setStore }) {
+/* Day page (no more blank — renders the actual items for that day) */
+function DayPage({ data, setData, store, setStore }) {
   const { phaseId, moduleId, dayKey } = useParams();
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const phase = useMemo(
-    () => data.phases.find((p) => p.id === phaseId),
-    [data.phases, phaseId]
-  );
-  const mod = useMemo(() => (phase?.modules || []).find((m) => m.id === moduleId), [phase, moduleId]);
-  const day = useMemo(() => {
-    const days = groupSectionsByDay(mod?.sections || []);
-    return days.find((d) => d.key === dayKey);
-  }, [mod, dayKey]);
+  const phase = useMemo(() => data.phases.find((p) => p.id === phaseId), [data.phases, phaseId]);
+
+  useEffect(() => {
+    if (!phase || (phase.modules && phase.modules.length > 0)) return;
+    let cancelled = false;
+    setLoading(true);
+    loadPhase(phaseId).then((full) => {
+      if (cancelled) return;
+      setData((prev) => ({ ...prev, phases: prev.phases.map((x) => (x.id === phaseId ? full : x)) }));
+    }).finally(() => setLoading(false));
+    return () => { cancelled = true; };
+  }, [phase, phaseId, setData]);
+
+  const module = useMemo(() => (phase?.modules || []).find((m) => m.id === moduleId), [phase, moduleId]);
+  const days = useMemo(() => groupByDay(module?.sections || []), [module]);
+  const day = days[dayKey];
+
+  const [q, setQ] = useState("");
 
   const toggleDone = (id) => {
     setStore((s) => ({ ...s, items: { ...s.items, [id]: { ...s.items[id], done: !s.items[id]?.done } } }));
@@ -427,69 +369,63 @@ function DayPage({ data, store, setStore }) {
     setStore((s) => ({ ...s, items: { ...s.items, [id]: { ...s.items[id], notes: txt } } }));
   };
 
-  const items = useMemo(() => {
-    const all = (day?.sections || []).flatMap((s) => s.items || []);
-    const filtered = all
-      .filter((it) => it.type !== "discussion")
-      .filter((it) => (it.title || "").toLowerCase().includes(q.trim().toLowerCase()));
-    return filtered;
-  }, [day, q]);
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/80 dark:bg-gray-900/80 border-b dark:border-gray-800">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="font-semibold tracking-tight">⚡ Cyber Phases Notes</div>
-          <div className="ml-auto flex items-center gap-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="text-sm px-3 py-1.5 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700"
-            >
-              ← Back
-            </button>
-          </div>
+    <div className="min-h-screen bg-base-200 text-base-content">
+      <header className="sticky top-0 z-10 bg-base-100/90 border-b border-base-300 backdrop-blur">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2">
+          <Link to={`/cyber/bootcamp/phase/${phaseId}/module/${moduleId}`} className="btn btn-sm">← Module</Link>
+          <div className="ml-2 text-xs opacity-70">{phase?.title} • {module?.title}</div>
+          <div className="ml-auto"><ThemePicker /></div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-4">
-        {!phase || !mod || !day ? (
+        {loading || !day ? (
           <Spinner label="Loading day…" />
         ) : (
           <>
             <div className="mb-3">
-              <div className="text-xs text-gray-500">{phase.title} • {mod.title}</div>
               <h1 className="text-xl font-bold">{day.title}</h1>
+              <div className="relative mt-2">
+                <input
+                  value={q}
+                  onChange={(e)=>setQ(e.target.value)}
+                  placeholder="Search in this day…"
+                  className="input input-bordered w-full"
+                />
+              </div>
             </div>
 
-            <div className="relative mb-3">
-              <Icon name="search" className="w-4 h-4 absolute left-2 top-2.5 text-gray-400" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search items in this day…"
-                className="pl-7 pr-3 py-2 rounded-lg border bg-white dark:bg-gray-900 dark:border-gray-700 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-
-            {/* Render items as checkable rows (quizzes included) */}
-            <div className="border rounded-2xl bg-white dark:bg-gray-900 dark:border-gray-700 p-2">
-              {items.length === 0 ? (
-                <div className="text-sm text-gray-500 p-3">No matching items.</div>
-              ) : (
-                items.map((it) => (
-                  <div key={it.id} className="px-2">
-                    <div className="border-b last:border-b-0 dark:border-gray-800">
-                      <div className="py-1">
-                        {/* reuse ItemRow for consistent UX */}
-                        {/* ItemRow already shows a checkbox; no points shown anywhere */}
-                        {/* @ts-ignore */}
-                        <import-placeholder />
+            {(day.sections || []).map((sec) => (
+              <div key={sec.id} className="mb-3">
+                <div className="font-semibold mb-1">{sec.title}</div>
+                {(sec.items || [])
+                  .filter(it => it.type !== "discussion")
+                  .filter(it => !q || (it.title||"").toLowerCase().includes(q.toLowerCase()))
+                  .map((it) => (
+                    <div key={it.id} className="border-b border-base-300 py-2">
+                      {/* Minimal inline item row to guarantee it works even if your ItemRow stayed custom */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-sm"
+                          checked={!!store.items[it.id]?.done}
+                          onChange={() => toggleDone(it.id)}
+                        />
+                        <div className="flex-1">
+                          <div className="text-sm">{it.title}</div>
+                        </div>
                       </div>
+                      <textarea
+                        className="textarea textarea-bordered textarea-xs w-full mt-2"
+                        placeholder="Notes…"
+                        value={store.items[it.id]?.notes || ""}
+                        onChange={(e)=>saveNote(it.id, e.target.value)}
+                      />
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            ))}
           </>
         )}
       </main>
@@ -497,166 +433,91 @@ function DayPage({ data, store, setStore }) {
   );
 }
 
-// We can’t really import inside JSX; the above placeholder is just to signal that ItemRow is used.
-// Replace that block with the actual ItemRow call:
-function DayPageFixed(props) {
-  // wrapper to use ItemRow correctly
-  const { data, store, setStore } = props;
-  const { phaseId, moduleId, dayKey } = useParams();
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
-
-  const phase = useMemo(() => data.phases.find((p) => p.id === phaseId), [data.phases, phaseId]);
-  const mod = useMemo(() => (phase?.modules || []).find((m) => m.id === moduleId), [phase, moduleId]);
-  const day = useMemo(() => {
-    const days = groupSectionsByDay(mod?.sections || []);
-    return days.find((d) => d.key === dayKey);
-  }, [mod, dayKey]);
-
-  const toggleDone = (id) => setStore((s) => ({ ...s, items: { ...s.items, [id]: { ...s.items[id], done: !s.items[id]?.done } } }));
-  const saveNote = (id, txt) => setStore((s) => ({ ...s, items: { ...s.items, [id]: { ...s.items[id], notes: txt } } }));
-
-  const items = useMemo(() => {
-    const all = (day?.sections || []).flatMap((s) => s.items || []);
-    return all
-      .filter((it) => it.type !== "discussion")
-      .filter((it) => (it.title || "").toLowerCase().includes(q.trim().toLowerCase()));
-  }, [day, q]);
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/80 dark:bg-gray-900/80 border-b dark:border-gray-800">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="font-semibold tracking-tight">⚡ Cyber Phases Notes</div>
-          <div className="ml-auto flex items-center gap-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="text-sm px-3 py-1.5 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-800 dark:border-gray-700"
-            >
-              ← Back
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-4 py-4">
-        {!phase || !mod || !day ? (
-          <Spinner label="Loading day…" />
-        ) : (
-          <>
-            <div className="mb-3">
-              <div className="text-xs text-gray-500">{phase.title} • {mod.title}</div>
-              <h1 className="text-xl font-bold">{day.title}</h1>
-            </div>
-
-            <div className="relative mb-3">
-              <Icon name="search" className="w-4 h-4 absolute left-2 top-2.5 text-gray-400" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search items in this day…"
-                className="pl-7 pr-3 py-2 rounded-lg border bg-white dark:bg-gray-900 dark:border-gray-700 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-
-            <div className="border rounded-2xl bg-white dark:bg-gray-900 dark:border-gray-700 p-2">
-              {items.length === 0 ? (
-                <div className="text-sm text-gray-500 p-3">No matching items.</div>
-              ) : (
-                items.map((it) => (
-                  <ItemRow
-                    key={it.id}
-                    item={it}
-                    state={store.items[it.id]}
-                    onToggleDone={toggleDone}
-                    onSaveNote={saveNote}
-                  />
-                ))
-              )}
-            </div>
-          </>
-        )}
-      </main>
-    </div>
-  );
-}
-
-// ===============================
-// App shell with router
-// ===============================
+/* ======= App root with subjects & DB wiring ======= */
 export default function App() {
+  const { db, setDb, exportDb, importDb } = useJsonDB();
+
+  // Bootcamp data / store pulled from DB.subjects.cyber
   const [data, setData] = useState(starter);
-  const [store, setStore] = useState({ items: {} });
   const [phaseId, setPhaseId] = useState(starter.phases[0].id);
   const [q, setQ] = useState("");
-  const [view, setView] = useState("overview");
-  const themeHook = useTheme();
+  const [view, setView] = useState("overview"); // "overview" | "notes"
 
-  // Load saved state
+  // bind to DB (subject: cyber)
+  const cyberStore = db.subjects.cyber || { items: {} };
+  const setCyberStore = (newStore) => setDb((prev) => ({ ...prev, subjects: { ...prev.subjects, cyber: newStore } }));
+
+  // Load legacy state (optional)
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw);
       if (saved.data) setData(saved.data);
-      if (saved.store) setStore(saved.store);
       if (saved.phaseId) setPhaseId(saved.phaseId);
+      // notes now live in DB; we don’t copy `saved.store`
     } catch {}
   }, []);
 
-  // Persist state
-  useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify({ data, store, phaseId }));
-  }, [data, store, phaseId]);
+  // Save phaseId so returning keeps position
+  useEffect(() => { localStorage.setItem(LS_KEY, JSON.stringify({ data, phaseId })); }, [data, phaseId]);
 
   return (
-    <HashRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <HomeView
-              data={data}
-              setData={setData}
-              store={store}
-              setStore={setStore}
-              phaseId={phaseId}
-              setPhaseId={setPhaseId}
-              q={q}
-              setQ={setQ}
-              view={view}
-              setView={setView}
-              themeHook={themeHook}
+    <ThemeProvider>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Hub exportDb={exportDb} importDb={importDb} />} />
+
+          {/* Cyber area */}
+          <Route path="/cyber" element={<Hub exportDb={exportDb} importDb={importDb} />} />
+          <Route path="/cyber/intro" element={
+            <div className="min-h-screen bg-base-200">
+              <header className="sticky top-0 z-10 bg-base-100/90 border-b border-base-300">
+                <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2">
+                  <Link to="/" className="btn btn-sm">← Hub</Link>
+                  <div className="font-semibold">Cybersecurity Intro</div>
+                  <div className="ml-auto"><ThemePicker /></div>
+                </div>
+              </header>
+              <main className="max-w-4xl mx-auto px-4 py-6">
+                <p className="opacity-70">Put your intro notes space here.</p>
+              </main>
+            </div>
+          } />
+
+          <Route path="/cyber/bootcamp" element={
+            <BootcampHome
+              data={data} setData={setData}
+              store={cyberStore} setStore={setCyberStore}
+              phaseId={phaseId} setPhaseId={setPhaseId}
+              q={q} setQ={setQ} view={view} setView={setView}
             />
-          }
-        />
-        <Route
-          path="/phase/:phaseId/module/:moduleId"
-          element={<ModulePage data={data} setData={setData} store={store} />}
-        />
-        <Route
-          path="/phase/:phaseId/module/:moduleId/day/:dayKey"
-          element={<DayPageFixed data={data} store={store} setStore={setStore} />}
-        />
-        <Route
-          path="*"
-          element={
-            <HomeView
-              data={data}
-              setData={setData}
-              store={store}
-              setStore={setStore}
-              phaseId={phaseId}
-              setPhaseId={setPhaseId}
-              q={q}
-              setQ={setQ}
-              view={view}
-              setView={setView}
-              themeHook={themeHook}
-            />
-          }
-        />
-      </Routes>
-    </HashRouter>
+          } />
+          <Route path="/cyber/bootcamp/phase/:phaseId/module/:moduleId"
+            element={<ModulePage data={data} setData={setData} store={cyberStore} setStore={setCyberStore} />} />
+          <Route path="/cyber/bootcamp/phase/:phaseId/module/:moduleId/day/:dayKey"
+            element={<DayPage data={data} setData={setData} store={cyberStore} setStore={setCyberStore} />} />
+
+          {/* Software Eng placeholder */}
+          <Route path="/sweng" element={
+            <div className="min-h-screen bg-base-200">
+              <header className="sticky top-0 z-10 bg-base-100/90 border-b border-base-300">
+                <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2">
+                  <Link to="/" className="btn btn-sm">← Hub</Link>
+                  <div className="font-semibold">Software Engineering</div>
+                  <div className="ml-auto"><ThemePicker /></div>
+                </div>
+              </header>
+              <main className="max-w-4xl mx-auto px-4 py-6">
+                <p className="opacity-70">Create folders, projects, and notes for SWE here.</p>
+              </main>
+            </div>
+          } />
+
+          {/* Fallback */}
+          <Route path="*" element={<Hub exportDb={exportDb} importDb={importDb} />} />
+        </Routes>
+      </HashRouter>
+    </ThemeProvider>
   );
 }

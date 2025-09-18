@@ -1,28 +1,24 @@
 import { useMemo, useState } from "react";
-import { Icon } from "./Icon";
-import { ItemRow } from "./ItemRow";
+import { ItemRow } from "./ItemRow"; // keep your existing ItemRow
+import Spinner from "./Spinner";
 
 function Pill({ children }) {
-  return <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-gray-800/70 dark:text-gray-200">{children}</span>;
+  return <span className="px-2 py-0.5 rounded-full text-xs bg-base-200 text-base-content/70">{children}</span>;
 }
-
 function SectionHeader({ title }) {
-  return (
-    <div className="flex items-center gap-2 mt-4 mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200">
-      <span className="w-1.5 h-4 bg-gray-300 dark:bg-gray-600 rounded" />
-      {title}
-    </div>
-  );
+  return <div className="flex items-center gap-2 mt-4 mb-2 text-sm font-semibold text-base-content/80">
+    <span className="w-1.5 h-4 bg-base-300 rounded" />{title}
+  </div>;
 }
 
-/** Used on the Day page (kept for parity); renders sections inline */
-export function ModuleBlock({ module, store, setStore }) {
+export function ModuleBlock({ module, store, setStore, loading = false }) {
   const [open, setOpen] = useState(true);
 
   const stats = useMemo(() => {
     let total = 0, done = 0;
-    (module.sections || []).forEach((sec) =>
-      (sec.items || []).forEach((it) => {
+    (module.sections || []).forEach((s) =>
+      (s.items || []).forEach((it) => {
+        if (it.type === "discussion") return; // hidden everywhere
         total++;
         if (store.items[it.id]?.done) done++;
       })
@@ -38,34 +34,32 @@ export function ModuleBlock({ module, store, setStore }) {
   };
 
   return (
-    <div className="mb-6 border rounded-2xl bg-white dark:bg-gray-900 shadow-sm dark:border-gray-700">
+    <div className="mb-6 border rounded-2xl bg-base-100 shadow-sm border-base-300">
       <button onClick={() => setOpen((o) => !o)} className="w-full text-left px-4 py-3 flex items-center justify-between">
         <div>
-          <div className="font-semibold text-gray-800 dark:text-gray-100">{module.title}</div>
-          <div className="text-xs text-gray-500 mt-0.5 flex gap-2 items-center dark:text-gray-300">
-            {/* ONLY PERCENTAGE PER YOUR REQUEST */}
-            <Pill>{stats.pct}% complete</Pill>
+          <div className="font-semibold">{module.title}</div>
+          <div className="text-xs mt-0.5 flex gap-2 items-center text-base-content/70">
+            {/* % ONLY */}
+            <Pill>{stats.done}/{stats.total} • {stats.pct}%</Pill>
           </div>
         </div>
-        <Icon name="more" className="w-5 h-5 text-gray-400" />
+        <span className="opacity-60">{open ? "▾" : "▸"}</span>
       </button>
 
-      {open && (
+      {!open ? null : loading ? <Spinner label="Loading module…" /> : (
         <div className="px-4 pb-4">
           {(module.sections || []).map((sec) => (
             <div key={sec.id}>
               <SectionHeader title={sec.title} />
-              {(sec.items || [])
-                .filter((it) => it.type !== "discussion") /* hide discussions */
-                .map((it) => (
-                  <ItemRow
-                    key={it.id}
-                    item={it}
-                    state={store.items[it.id]}
-                    onToggleDone={toggleDone}
-                    onSaveNote={saveNote}
-                  />
-                ))}
+              {(sec.items || []).filter(it => it.type !== "discussion").map((it) => (
+                <ItemRow
+                  key={it.id}
+                  item={it}
+                  state={store.items[it.id]}
+                  onToggleDone={toggleDone}
+                  onSaveNote={saveNote}
+                />
+              ))}
             </div>
           ))}
         </div>
@@ -73,3 +67,4 @@ export function ModuleBlock({ module, store, setStore }) {
     </div>
   );
 }
+export default ModuleBlock;
