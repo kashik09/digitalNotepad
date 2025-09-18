@@ -1,113 +1,69 @@
-// src/components/Overview.jsx
-import React from "react";
+// A compact “Courses at a glance” board with phase columns.
+// Click a course chip (e.g., NET100) to jump directly to the module.
+// Props:
+// - data: { phases: [{ id, title, courses: ['NET100','SYS100', ...] }] }
+// - activePhaseId
+// - onJumpToPhase(phaseId)
+// - onJumpToCourse(phaseId, courseCode)
+export default function Overview({ data, activePhaseId, onJumpToPhase, onJumpToCourse }) {
+  const phases = data?.phases || [];
 
-function Card({ children }) {
-  return <div className="rounded-xl border bg-white p-4 shadow-sm">{children}</div>;
-}
+  const chipStyle =
+    "w-full text-center py-2 rounded-xl text-sm font-medium border shadow-sm hover:shadow transition " +
+    "bg-white/90 border-gray-200 text-gray-700 hover:bg-gray-50 " +
+    "dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800";
 
-export default function Overview({ data, activePhaseId, onJumpToPhase }) {
-  const { intro, note, phaseCards, courseGrid = [] } = data;
+  const headerStyle =
+    "text-center font-semibold text-gray-700 dark:text-gray-200 text-base bg-gray-100 dark:bg-gray-800 rounded-xl py-2";
 
-  // Phase → courses mapping (column layout like your screenshot)
-  const phases = [
-    { id: "phase1", title: "Phase 1", courses: ["NET100", "SYS100", "CRY100", "PYT100", "GRC100"] },
-    { id: "phase2", title: "Phase 2", courses: ["NET200", "SYS200", "CRY200", "PYT200", "CTI100"] },
-    { id: "phase3", title: "Phase 3", courses: ["NET300", "SYS300", "CRY300", "SIE100", "CTI200"] },
-    { id: "phase4", title: "Phase 4", courses: ["NET400", "SYS400", "APP100", "SIE200", "GRC200"] },
-    { id: "phase5", title: "Phase 5", courses: ["NET500", "SYS500", "APP200", "SIE300", "Capstone"] },
-  ];
-
-  // row colors for vibes ✨
-  const rowBg = [
-    "bg-emerald-100", // NET
-    "bg-sky-100",     // SYS
-    "bg-amber-100",   // CRY / APP
-    "bg-orange-200",  // PYT / SIE
-    "bg-cyan-200",    // GRC / CTI / Capstone
+  const lanes = [
+    "bg-emerald-50 dark:bg-emerald-900/30",
+    "bg-sky-50 dark:bg-sky-900/30",
+    "bg-amber-50 dark:bg-amber-900/30",
+    "bg-rose-50 dark:bg-rose-900/30",
+    "bg-cyan-50 dark:bg-cyan-900/30",
   ];
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <h1 className="text-lg font-bold mb-2">Program Overview</h1>
-        {intro && <p className="text-sm text-gray-700">{intro}</p>}
-        {note && <p className="text-xs text-gray-500 mt-2">{note}</p>}
-      </Card>
+    <section className="mt-3">
+      <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Courses at a glance</h2>
+      <div className="rounded-2xl border bg-white dark:bg-gray-950 dark:border-gray-800 p-4 overflow-x-auto">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 min-w-[760px]">
+          {phases.map((ph, idx) => (
+            <div
+              key={ph.id}
+              className={[
+                "rounded-xl p-3 border",
+                ph.id === activePhaseId
+                  ? "border-blue-300 ring-2 ring-blue-300"
+                  : "border-gray-200 dark:border-gray-800",
+                lanes[idx % lanes.length],
+              ].join(" ")}
+            >
+              <button
+                onClick={() => onJumpToPhase?.(ph.id)}
+                className={headerStyle}
+                title={`Open ${ph.title}`}
+              >
+                {ph.title}
+              </button>
 
-      {/* Phase blurbs */}
-      {phaseCards?.length > 0 && (
-        <section>
-          <h2 className="text-sm font-semibold text-gray-600 mb-2">Phases</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {phaseCards.map((p) => (
-              <Card key={p.id}>
-                <div className="font-semibold">{p.title}</div>
-                <p className="text-sm text-gray-700 mt-1">{p.summary}</p>
-                {p.applied?.length > 0 && (
-                  <details className="mt-2">
-                    <summary className="text-sm text-blue-600 cursor-pointer">Applied activities</summary>
-                    <ul className="list-disc pl-5 mt-1 text-sm text-gray-700 space-y-1">
-                      {p.applied.map((li, i) => <li key={i}>{li}</li>)}
-                    </ul>
-                  </details>
-                )}
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Courses at a glance — clickable matrix */}
-      <section>
-        <h2 className="text-sm font-semibold text-gray-600 mb-2">Courses at a glance</h2>
-        <Card>
-          <div className="overflow-x-auto">
-            <div className="inline-grid grid-cols-5 gap-2">
-              {phases.map((ph, colIdx) => (
-                <div
-                  key={ph.id}
-                  className={[
-                    "rounded-lg border p-2 w-48",
-                    ph.id === activePhaseId ? "ring-2 ring-blue-500 border-blue-300" : "border-gray-300",
-                  ].join(" ")}
-                >
+              <div className="mt-3 space-y-2">
+                {(ph.courses || []).map((code) => (
                   <button
-                    className="w-full text-center font-semibold text-gray-800 py-1 rounded-md bg-gray-300/60"
-                    onClick={() => onJumpToPhase?.(ph.id)}
+                    key={code}
+                    className={chipStyle}
+                    onClick={() => onJumpToCourse?.(ph.id, code)}
+                    title={`Open ${code}`}
                   >
-                    {ph.title}
+                    {code}
                   </button>
-
-                  <div className="mt-2 space-y-2">
-                    {ph.courses.map((c, rowIdx) => (
-                      <button
-                        key={c}
-                        className={[
-                          "w-full text-center rounded-md border px-2 py-1 text-sm font-medium",
-                          rowBg[rowIdx % rowBg.length],
-                          "border-black/10 hover:brightness-95 transition",
-                        ].join(" ")}
-                        onClick={() => onJumpToPhase?.(ph.id)}
-                        title={`Open ${ph.title}`}
-                      >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </Card>
-      </section>
-
-      {/* Optional: keep any detailed course cards you pass in via data */}
-      {courseGrid?.length > 0 && (
-        <section>
-          <h2 className="text-sm font-semibold text-gray-600 mb-2">Course Details</h2>
-          {/* You can keep your previous detailed cards here if you like */}
-        </section>
-      )}
-    </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
