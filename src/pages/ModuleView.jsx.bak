@@ -9,7 +9,6 @@ export default function ModuleView() {
   const { phaseId, moduleId } = useParams();
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState(null);
-  const [q, setQ] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -51,26 +50,16 @@ export default function ModuleView() {
         <button className="btn btn-ghost btn-sm" onClick={() => nav(-1)}>← Back</button>
       </div>
 
-      {/* Module header */}
-      <header className="px-4 pt-2">
+      {/* Module header (separate from Back) */}
+      <header className="px-4 pt-2 pb-4">
         <h1 className="text-xl font-semibold text-base-content">
           {phase.title} · {mod.title}
         </h1>
       </header>
 
-      {/* Scoped search just for this module */}
-      <div className="px-4 pt-3 pb-2">
-        <input
-          className="input input-bordered w-full sm:max-w-lg"
-          placeholder="Search in this module…"
-          value={q}
-          onChange={e => setQ(e.target.value)}
-        />
-      </div>
-
-      {/* Module content (filtered by q) */}
+      {/* The actual module content */}
       <div className="px-4">
-        <ModuleBlock module={mod} query={q} />
+        <ModuleBlock module={mod} />
       </div>
     </div>
   );
