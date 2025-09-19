@@ -3,18 +3,20 @@ import { useParams, useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner.jsx";
 import ProgressRing from "../components/ProgressRing.jsx";
 import ModuleBlock from "../components/ModuleBlock.jsx";
-import loadPhase from "../data/loadPhase.js";
+import * as phaseLoader from "../data/loadPhase.js"; // tolerate default or named exports
 import { LS_KEY } from "../utils/format.js";
 
+const loadPhaseFn =
+  phaseLoader.default ||
+  phaseLoader.loadPhase ||
+  phaseLoader.load ||
+  phaseLoader.fetchPhase;
+
 function modulePercent(mod) {
-  // compute % done from localStorage items, ignoring 'discussion'
   const raw = localStorage.getItem(LS_KEY);
   let itemsStore = {};
-  try {
-    itemsStore = JSON.parse(raw || "{}")?.items || {};
-  } catch {}
-  let total = 0;
-  let done = 0;
+  try { itemsStore = JSON.parse(raw || "{}")?.items || {}; } catch {/* noop */}
+  let total = 0, done = 0;
   for (const sec of mod?.sections || []) {
     for (const it of sec?.items || []) {
       if (!it || it.type === "discussion") continue;
@@ -30,13 +32,15 @@ export default function ModuleView() {
   const { phaseId, moduleId } = useParams();
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState(null);
+  const [q, setQ] = useState("");
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         setLoading(true);
-        const ph = await loadPhase(phaseId);
+        if (typeof loadPhaseFn !== "function") return;
+        const ph = await loadPhaseFn(phaseId);
         if (mounted) setPhase(ph || null);
       } finally {
         if (mounted) setLoading(false);
@@ -69,13 +73,11 @@ export default function ModuleView() {
 
   return (
     <div className="pb-8">
-      {/* Back toolbar on its own line */}
       <div className="px-4 pt-4">
         <button className="btn btn-ghost btn-sm" onClick={() => nav(-1)}>← Back</button>
       </div>
 
-      {/* Module header (separate from Back) */}
-      <header className="px-4 pt-2 pb-4">
+      <header className="px-4 pt-2">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-xl font-semibold text-base-content">
             {phase.title} · {mod.title}
@@ -84,9 +86,17 @@ export default function ModuleView() {
         </div>
       </header>
 
-      {/* The actual module content */}
+      <div className="px-4 pt-3 pb-2">
+        <input
+          className="input input-bordered w-full sm:max-w-lg"
+          placeholder="Search in this module…"
+          value={q}
+          onChange={e => setQ(e.target.value)}
+        />
+      </div>
+
       <div className="px-4">
-        <ModuleBlock module={mod} />
+        <ModuleBlock module={mod} query={q} />
       </div>
     </div>
   );

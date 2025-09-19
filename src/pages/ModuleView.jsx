@@ -3,14 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner.jsx";
 import ProgressRing from "../components/ProgressRing.jsx";
 import ModuleBlock from "../components/ModuleBlock.jsx";
-import * as phaseLoader from "../data/loadPhase.js"; // tolerate default or named exports
 import { LS_KEY } from "../utils/format.js";
-
-const loadPhaseFn =
-  phaseLoader.default ||
-  phaseLoader.loadPhase ||
-  phaseLoader.load ||
-  phaseLoader.fetchPhase;
 
 function modulePercent(mod) {
   const raw = localStorage.getItem(LS_KEY);
@@ -39,8 +32,14 @@ export default function ModuleView() {
     (async () => {
       try {
         setLoading(true);
-        if (typeof loadPhaseFn !== "function") return;
-        const ph = await loadPhaseFn(phaseId);
+        const mod = await import("../data/loadPhase.js");
+        const loadPhase =
+          mod.default || mod.loadPhase || mod.load || mod.fetchPhase;
+        if (typeof loadPhase !== "function") {
+          console.error("[loadPhase] no function export in src/data/loadPhase.js");
+          return;
+        }
+        const ph = await loadPhase(phaseId);
         if (mounted) setPhase(ph || null);
       } finally {
         if (mounted) setLoading(false);

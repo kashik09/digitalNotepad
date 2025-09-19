@@ -3,9 +3,19 @@ import { Link } from "react-router-dom";
 import Overview from "../components/Overview.jsx";
 import Spinner from "../components/Spinner.jsx";
 import ProgressRing from "../components/ProgressRing.jsx";
-import loadPhase from "../data/loadPhase.js";
-import * as starterData from "../data/starter.js"; // tolerate default or named exports
+import * as phaseLoader from "../data/loadPhase.js"; // tolerate default or named exports
+import * as starterData from "../data/starter.js";    // tolerate default or named exports
 import { LS_KEY } from "../utils/format.js";
+
+const loadPhaseFn =
+  phaseLoader.default ||
+  phaseLoader.loadPhase ||
+  phaseLoader.load ||
+  phaseLoader.fetchPhase;
+
+if (typeof loadPhaseFn !== "function") {
+  console.error("[loadPhase] loader not found in src/data/loadPhase.js");
+}
 
 function resolveStarter(data) {
   const d = data?.default;
@@ -19,11 +29,8 @@ const STARTER = resolveStarter(starterData);
 function moduleProgress(mod) {
   const raw = localStorage.getItem(LS_KEY);
   let itemsStore = {};
-  try {
-    itemsStore = JSON.parse(raw || "{}")?.items || {};
-  } catch {/* noop */}
-  let total = 0;
-  let done = 0;
+  try { itemsStore = JSON.parse(raw || "{}")?.items || {}; } catch {/* noop */}
+  let total = 0, done = 0;
   for (const sec of mod?.sections || []) {
     for (const it of sec?.items || []) {
       if (!it || it.type === "discussion") continue;
@@ -44,7 +51,8 @@ export default function HomeHub() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const ph = await loadPhase(currentPhaseId);
+      if (typeof loadPhaseFn !== "function") return;
+      const ph = await loadPhaseFn(currentPhaseId);
       if (mounted) setPhase(ph || null);
     })();
     return () => { mounted = false; };
@@ -54,20 +62,8 @@ export default function HomeHub() {
     <div className="p-4 sm:p-6">
       {/* Tabs */}
       <div role="tablist" className="tabs tabs-boxed mb-4">
-        <button
-          role="tab"
-          className={`tab ${view === "overview" ? "tab-active" : ""}`}
-          onClick={() => setView("overview")}
-        >
-          Overview
-        </button>
-        <button
-          role="tab"
-          className={`tab ${view === "notes" ? "tab-active" : ""}`}
-          onClick={() => setView("notes")}
-        >
-          Notes
-        </button>
+        <button role="tab" className={`tab ${view === "overview" ? "tab-active" : ""}`} onClick={() => setView("overview")}>Overview</button>
+        <button role="tab" className={`tab ${view === "notes" ? "tab-active" : ""}`} onClick={() => setView("notes")}>Notes</button>
       </div>
 
       {view === "overview" ? (
