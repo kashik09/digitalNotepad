@@ -1,3 +1,4 @@
+import DataMenu from "./components/DataMenu.jsx";
 import { useEffect, useState } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./theme/ThemeProvider.jsx";
@@ -35,6 +36,9 @@ export default function App() {
             <span className="badge badge-outline">{subject}</span>
           </div>
           <div className="navbar-end gap-2">
+            <DataMenu />
+            <ThemeSwitcher />
+          </div>
             <ThemeSwitcher />
           </div>
         </div>
