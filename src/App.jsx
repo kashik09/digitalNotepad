@@ -13,6 +13,9 @@ import SoftwareProjects from "./pages/SoftwareProjects.jsx";
 import ModuleView from "./pages/ModuleView.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
+const AUTH_OK_KEY = "AUTH:ok";
+const LAST_ROUTE_KEY = "LAST:route";
+
 function subjectFromHash() {
   const h = (window.location.hash || "").toLowerCase();
   if (h.startsWith("#/software")) return "Software";
@@ -23,10 +26,26 @@ function subjectFromHash() {
 
 export default function App() {
   const [subject, setSubject] = useState(subjectFromHash());
+
+  // Guard: block protected routes when not authed; Persist last route otherwise
   useEffect(() => {
-    const onHash = () => setSubject(subjectFromHash());
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    function guardAndPersist() {
+      const hash = window.location.hash || "#/";
+      const isLogin = hash.startsWith("#/login");
+      const authed = localStorage.getItem(AUTH_OK_KEY) === "1";
+      if (!authed && !isLogin) {
+        window.location.hash = "#/login";
+        return;
+      }
+      // persist last route (skip login)
+      if (!isLogin) {
+        try { localStorage.setItem(LAST_ROUTE_KEY, hash); } catch {}
+      }
+      setSubject(subjectFromHash());
+    }
+    guardAndPersist();
+    window.addEventListener("hashchange", guardAndPersist);
+    return () => window.removeEventListener("hashchange", guardAndPersist);
   }, []);
 
   return (
