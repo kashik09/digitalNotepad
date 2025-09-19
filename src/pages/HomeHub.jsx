@@ -4,16 +4,24 @@ import Overview from "../components/Overview.jsx";
 import Spinner from "../components/Spinner.jsx";
 import ProgressRing from "../components/ProgressRing.jsx";
 import loadPhase from "../data/loadPhase.js";
-import starter from "../data/starter.js";
+import * as starterData from "../data/starter.js"; // tolerate default or named exports
 import { LS_KEY } from "../utils/format.js";
+
+function resolveStarter(data) {
+  const d = data?.default;
+  if (d && d.phases) return d;
+  if (data?.starter && data.starter.phases) return data.starter;
+  if (Array.isArray(data?.phases)) return { phases: data.phases };
+  return { phases: [] };
+}
+const STARTER = resolveStarter(starterData);
 
 function moduleProgress(mod) {
   const raw = localStorage.getItem(LS_KEY);
   let itemsStore = {};
   try {
     itemsStore = JSON.parse(raw || "{}")?.items || {};
-  } catch {}
-
+  } catch {/* noop */}
   let total = 0;
   let done = 0;
   for (const sec of mod?.sections || []) {
@@ -29,9 +37,9 @@ function moduleProgress(mod) {
 
 export default function HomeHub() {
   const [view, setView] = useState("overview"); // "overview" | "notes"
-  const [currentPhaseId, setCurrentPhaseId] = useState(starter?.phases?.[0]?.id || "phase1");
+  const [currentPhaseId, setCurrentPhaseId] = useState(STARTER?.phases?.[0]?.id || "phase1");
   const [phase, setPhase] = useState(null);
-  const phases = useMemo(() => starter?.phases || [], []);
+  const phases = useMemo(() => STARTER?.phases || [], []);
 
   useEffect(() => {
     let mounted = true;
@@ -39,9 +47,7 @@ export default function HomeHub() {
       const ph = await loadPhase(currentPhaseId);
       if (mounted) setPhase(ph || null);
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [currentPhaseId]);
 
   return (

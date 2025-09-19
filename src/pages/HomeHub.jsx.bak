@@ -2,8 +2,30 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Overview from "../components/Overview.jsx";
 import Spinner from "../components/Spinner.jsx";
+import ProgressRing from "../components/ProgressRing.jsx";
 import loadPhase from "../data/loadPhase.js";
 import starter from "../data/starter.js";
+import { LS_KEY } from "../utils/format.js";
+
+function moduleProgress(mod) {
+  const raw = localStorage.getItem(LS_KEY);
+  let itemsStore = {};
+  try {
+    itemsStore = JSON.parse(raw || "{}")?.items || {};
+  } catch {}
+
+  let total = 0;
+  let done = 0;
+  for (const sec of mod?.sections || []) {
+    for (const it of sec?.items || []) {
+      if (!it || it.type === "discussion") continue;
+      total += 1;
+      if (itemsStore[it.id]?.done) done += 1;
+    }
+  }
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  return { total, done, pct };
+}
 
 export default function HomeHub() {
   const [view, setView] = useState("overview"); // "overview" | "notes"
@@ -64,18 +86,24 @@ export default function HomeHub() {
             <Spinner label="Loading phase…" />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {(phase.modules || []).map((m) => (
-                <Link
-                  key={m.id}
-                  to={`/phase/${currentPhaseId}/module/${m.id}`}
-                  className="card bg-base-200 hover:bg-base-300 border border-base-300/60 transition-colors"
-                >
-                  <div className="card-body">
-                    <h3 className="card-title">{m.title}</h3>
-                    <p className="text-base-content/70">Open module</p>
-                  </div>
-                </Link>
-              ))}
+              {(phase.modules || []).map((m) => {
+                const { pct } = moduleProgress(m);
+                return (
+                  <Link
+                    key={m.id}
+                    to={`/phase/${currentPhaseId}/module/${m.id}`}
+                    className="card bg-base-200 hover:bg-base-300 border border-base-300/60 transition-colors"
+                  >
+                    <div className="card-body">
+                      <div className="flex items-center justify-between">
+                        <h3 className="card-title">{m.title}</h3>
+                        <ProgressRing value={pct} size="sm" />
+                      </div>
+                      <p className="text-base-content/70">Open module</p>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
