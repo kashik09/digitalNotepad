@@ -1,8 +1,9 @@
-import DataMenu from "./components/DataMenu.jsx";
 import { useEffect, useState } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./theme/ThemeProvider.jsx";
 import ThemeSwitcher from "./components/ThemeSwitcher.jsx";
+import DataMenu from "./components/DataMenu.jsx";
+import SubjectSwitch from "./components/SubjectSwitch.jsx";
 import Hub from "./pages/Hub.jsx";
 import HomeHub from "./pages/HomeHub.jsx";
 import SoftwareApp from "./pages/SoftwareApp.jsx";
@@ -11,9 +12,7 @@ import ModuleView from "./pages/ModuleView.jsx";
 function subjectFromHash() {
   const h = (window.location.hash || "").toLowerCase();
   if (h.startsWith("#/software")) return "Software";
-  // module routes like #/phase/... are Cyber
-  if (h.startsWith("#/phase/")) return "Cyber";
-  if (h.startsWith("#/cyber")) return "Cyber";
+  if (h.startsWith("#/phase/") || h.startsWith("#/cyber")) return "Cyber";
   return "Hub";
 }
 
@@ -37,8 +36,7 @@ export default function App() {
           </div>
           <div className="navbar-end gap-2">
             <DataMenu />
-            <ThemeSwitcher />
-          </div>
+            <SubjectSwitch />
             <ThemeSwitcher />
           </div>
         </div>
