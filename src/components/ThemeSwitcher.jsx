@@ -1,164 +1,107 @@
 import { useEffect, useMemo, useState } from "react";
 
-const THEME_SETS = {
+const SUBJECT_THEMES = {
   cyber: ["cyber-neon", "cyber-terminal", "cyber-indigo", "cyber-light"],
   software: ["dev-slate", "dev-ocean", "dev-sand", "dev-mono"],
 };
 
-const DARK_SETS = {
-  cyber: new Set(["cyber-neon", "cyber-terminal", "cyber-indigo"]),
-  software: new Set(["dev-slate", "dev-ocean"]),
-};
-
-const LIGHT_SETS = {
-  cyber: new Set(["cyber-light"]),
-  software: new Set(["dev-sand", "dev-mono"]),
-};
-
-function getSubjectFromHash() {
+function subjectFromHash() {
   const h = (window.location.hash || "").toLowerCase();
   if (h.startsWith("#/software")) return "software";
-  return "cyber";
+  if (h.startsWith("#/cyber") || h.startsWith("#/phase/")) return "cyber";
+  return "hub";
 }
 
-function shortLabel(name = "") {
-  return name.replace(/^cyber-/, "").replace(/^dev-/, "");
+function applyTheme(theme) {
+  if (!theme) return;
+  document.documentElement.setAttribute("data-theme", theme);
+  try { localStorage.setItem("THEME:active", theme); } catch {}
+  // also persist by subject if we can detect one
+  const s = subjectFromHash();
+  if (s === "cyber" || s === "software") {
+    try { localStorage.setItem(`THEME:${s}`, theme); } catch {}
+  }
+}
+
+function applyMode(mode) {
+  if (!mode) return;
+  document.documentElement.setAttribute("data-mode", mode);
+  try { localStorage.setItem("MODE:active", mode); } catch {}
 }
 
 export default function ThemeSwitcher() {
-  const [subject, setSubject] = useState(getSubjectFromHash());
-  const [mode, setMode] = useState(localStorage.getItem("MODE:active") || "dark");
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState(() => localStorage.getItem("MODE:active") || "dark");
+  const subject = subjectFromHash();
 
-  const savedTheme = useMemo(() => {
-    const key = `THEME:${subject}`;
-    return localStorage.getItem(key) || (subject === "cyber" ? "cyber-neon" : "dev-slate");
+  const themes = useMemo(() => {
+    if (subject === "software") return SUBJECT_THEMES.software;
+    if (subject === "cyber") return SUBJECT_THEMES.cyber;
+    // hub: show a merged quick list
+    return [...SUBJECT_THEMES.cyber.slice(0,2), ...SUBJECT_THEMES.software.slice(0,2)];
   }, [subject]);
 
-  const [theme, setTheme] = useState(savedTheme);
+  const currentTheme = document.documentElement.getAttribute("data-theme") ||
+    localStorage.getItem("THEME:active") || themes[0];
 
   useEffect(() => {
-    const onHash = () => setSubject(getSubjectFromHash());
+    applyMode(mode);
+  }, [mode]);
+
+  // close on route change
+  useEffect(() => {
+    const onHash = () => setOpen(false);
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  useEffect(() => {
-    const key = `THEME:${subject}`;
-    const t = localStorage.getItem(key) || (subject === "cyber" ? "cyber-neon" : "dev-slate");
-    setTheme(t);
-  }, [subject]);
-
-  useEffect(() => {
-    try {
-      document.documentElement.setAttribute("data-theme", theme);
-      localStorage.setItem(`THEME:${subject}`, theme);
-      localStorage.setItem("THEME:active", theme);
-    } catch {}
-  }, [theme, subject]);
-
-  useEffect(() => {
-    try {
-      document.documentElement.setAttribute("data-mode", mode);
-      localStorage.setItem("MODE:active", mode);
-    } catch {}
-  }, [mode]);
-
-  function handleMode(next) {
-    if (next === mode) return;
-    setMode(next);
-
-    const isDark = DARK_SETS[subject].has(theme);
-    const isLight = LIGHT_SETS[subject].has(theme);
-
-    if (next === "light" && isDark) {
-      const lastLight = localStorage.getItem(`LAST_LIGHT:${subject}`);
-      const fallback = [...LIGHT_SETS[subject]][0];
-      const candidate = lastLight && LIGHT_SETS[subject].has(lastLight) ? lastLight : fallback;
-      localStorage.setItem(`LAST_DARK:${subject}`, theme);
-      setTheme(candidate);
-      return;
-    }
-    if (next === "dark" && isLight) {
-      const lastDark = localStorage.getItem(`LAST_DARK:${subject}`);
-      const fallback = [...DARK_SETS[subject]][0];
-      const candidate = lastDark && DARK_SETS[subject].has(lastDark) ? lastDark : fallback;
-      localStorage.setItem(`LAST_LIGHT:${subject}`, theme);
-      setTheme(candidate);
-      return;
-    }
-  }
-
-  const themeOptions = THEME_SETS[subject];
-
   return (
-    <div className="card bg-base-200/60 border border-base-300 shadow-sm backdrop-blur-sm">
-      <div className="card-body py-2 px-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Mode toggle (independent of theme) */}
-          <div className="join">
+    <div className="dropdown dropdown-end">
+      <button
+        className="btn btn-sm btn-ghost border border-base-300/60"
+        onClick={() => setOpen((v) => !v)}
+      >
+        🎨 {currentTheme?.replace(/^cyber-|^dev-/, "") || "theme"}
+      </button>
+
+      {open && (
+        <div className="dropdown-content z-[60] mt-2 p-3 w-64 rounded-xl border border-base-300 bg-base-100 shadow-xl">
+          {/* mode toggle */}
+          <div className="join w-full mb-3">
             <button
-              className={`btn btn-xs sm:btn-sm join-item ${mode === "light" ? "btn-active" : "btn-ghost"}`}
-              onClick={() => handleMode("light")}
-              aria-pressed={mode === "light"}
-            >
-              ☀️ Light
-            </button>
+              className={`btn btn-xs join-item ${mode === "light" ? "btn-active" : "btn-ghost"}`}
+              onClick={() => setMode("light")}
+            >☀️ Light</button>
             <button
-              className={`btn btn-xs sm:btn-sm join-item ${mode === "dark" ? "btn-active" : "btn-ghost"}`}
-              onClick={() => handleMode("dark")}
-              aria-pressed={mode === "dark"}
-            >
-              🌙 Dark
-            </button>
+              className={`btn btn-xs join-item ${mode === "dark" ? "btn-active" : "btn-ghost"}`}
+              onClick={() => setMode("dark")}
+            >🌙 Dark</button>
           </div>
 
-          {/* Subject label */}
-          <span className="badge badge-outline hidden sm:inline-flex">
-            {subject === "cyber" ? "Cyber" : "Software"}
-          </span>
-
-          {/* Theme dropdown (cyber-styled) */}
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-xs sm:btn-sm btn-ghost border border-base-300/60"
-              aria-haspopup="listbox"
-              aria-label="Change theme"
-              title="Change theme"
-            >
-              🎨 {shortLabel(theme)}
-            </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content z-[60] menu p-2 shadow-lg bg-base-200 border border-base-300 rounded-xl w-56"
-              role="listbox"
-            >
-              {themeOptions.map((t) => {
-                const isActive = t === theme;
-                const tag = DARK_SETS[subject].has(t)
-                  ? "dark"
-                  : LIGHT_SETS[subject].has(t)
-                  ? "light"
-                  : "";
-                return (
-                  <li key={t}>
-                    <button
-                      role="option"
-                      aria-selected={isActive}
-                      className={isActive ? "active" : ""}
-                      onClick={() => setTheme(t)}
-                    >
-                      <span className="truncate">{shortLabel(t)}</span>
-                      {tag && <span className="badge badge-ghost ml-2">{tag}</span>}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+          {/* subject chip (read-only) */}
+          <div className="badge badge-outline mb-2">
+            {subject === "software" ? "Software" : subject === "cyber" ? "Cyber" : "Hub"}
           </div>
+
+          {/* theme list — NO per-theme 'dark' label anymore */}
+          <ul className="menu w-full max-h-64 overflow-auto">
+            {themes.map((t) => {
+              const active = t === currentTheme;
+              return (
+                <li key={t}>
+                  <button
+                    className={`justify-between ${active ? "active" : ""}`}
+                    onClick={() => { applyTheme(t); setOpen(false); }}
+                  >
+                    <span>{t.replace(/^cyber-|^dev-/, "")}</span>
+                    {active && <span className="badge badge-sm">selected</span>}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
-      </div>
+      )}
     </div>
   );
 }

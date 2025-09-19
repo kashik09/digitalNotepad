@@ -1,3 +1,4 @@
+import NotFound from "./pages/NotFound.jsx";
 import { useEffect, useState } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./theme/ThemeProvider.jsx";
@@ -42,14 +43,15 @@ export default function App() {
         </div>
 
         <HashRouter>
-          <Routes>
-            <Route path="/" element={<Hub />} />
-            <Route path="/cyber" element={<HomeHub />} />
-            <Route path="/software" element={<SoftwareApp />} />
-            <Route path="/phase/:phaseId/module/:moduleId" element={<ModuleView />} />
-          </Routes>
         </HashRouter>
       </div>
     </ThemeProvider>
   );
 }
+          <Routes>
+            <Route path="/" element={<Hub />} />
+            <Route path="/cyber" element={<HomeHub />} />
+            <Route path="/software" element={<SoftwareApp />} />
+            <Route path="/phase/:phaseId/module/:moduleId" element={<ModuleView />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>

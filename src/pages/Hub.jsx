@@ -1,27 +1,14 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import AppTile from "../components/AppTile.jsx";
 
 export default function Hub() {
+  const nav = useNavigate();
   return (
-    <div className="p-6 grid gap-4 sm:grid-cols-2">
-      <Link
-        to="/cyber"
-        className="card bg-base-200 hover:bg-base-300 border border-base-300/60 transition-colors"
-      >
-        <div className="card-body">
-          <h2 className="card-title">Cybersecurity</h2>
-          <p className="text-base-content/70">Bootcamp notes · phases & modules</p>
-        </div>
-      </Link>
-
-      <Link
-        to="/software"
-        className="card bg-base-200 hover:bg-base-300 border border-base-300/60 transition-colors"
-      >
-        <div className="card-body">
-          <h2 className="card-title">Software Dev</h2>
-          <p className="text-base-content/70">Separate themes & space for dev notes</p>
-        </div>
-      </Link>
+    <div className="min-h-[calc(100dvh-4rem)] grid place-items-center px-4">
+      <div className="flex items-center justify-center gap-8">
+        <AppTile icon="🛡️" label="Cybersecurity" onClick={() => nav("/cyber")} />
+        <AppTile icon="💻" label="Software Eng" onClick={() => nav("/software")} />
+      </div>
     </div>
   );
 }
