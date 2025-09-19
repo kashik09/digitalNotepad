@@ -6,6 +6,4 @@ import "./index.css";
 if (!window.location.hash || window.location.hash === "#") {
   window.location.replace("#/login");
 }
-
-const el = document.getElementById("root");
-createRoot(el).render(<App />);
+createRoot(document.getElementById("root")).render(<App />);

@@ -60,7 +60,7 @@ export default function HomeHub() {
   return (
     <div className="p-4 sm:p-6">
       {/* Tabs */}
-      <div role="tablist" className="tabs tabs-boxed mb-4">
+      <div role="tablist" className="tabs tabs-boxed tabs-sm mb-4">
         <button role="tab" className={`tab ${view === "overview" ? "tab-active" : ""}`} onClick={() => setView("overview")}>Overview</button>
         <button role="tab" className={`tab ${view === "notes" ? "tab-active" : ""}`} onClick={() => setView("notes")}>Notes</button>
       </div>
@@ -74,7 +74,7 @@ export default function HomeHub() {
             {phases.map((p) => (
               <button
                 key={p.id}
-                className={`btn btn-sm ${currentPhaseId === p.id ? "btn-primary" : "btn-outline"}`}
+                className={`btn btn-xs ${currentPhaseId === p.id ? "btn-primary" : "btn-outline"}`}
                 onClick={() => setCurrentPhaseId(p.id)}
               >
                 {p.title}

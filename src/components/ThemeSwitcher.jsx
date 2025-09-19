@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 
-const SUBJECT_THEMES = {
-  cyber: ["cyber-neon", "cyber-terminal", "cyber-indigo", "cyber-light"],
-  software: ["dev-slate", "dev-ocean", "dev-sand", "dev-mono"],
+/** Dark theme choices only (clean list) */
+const CYBER_DARK = ["cyber-neon", "cyber-terminal", "cyber-indigo"];
+const SOFTWARE_DARK = ["dev-slate", "dev-ocean"];
+
+/** What to apply when user toggles Light mode */
+const LIGHT_COMPANION = {
+  cyber: "cyber-light",
+  software: "dev-sand",
+  hub: "cyber-light",
 };
 
 function subjectFromHash() {
@@ -12,21 +18,10 @@ function subjectFromHash() {
   return "hub";
 }
 
-function applyTheme(theme) {
+function setTheme(theme) {
   if (!theme) return;
   document.documentElement.setAttribute("data-theme", theme);
   try { localStorage.setItem("THEME:active", theme); } catch {}
-  // also persist by subject if we can detect one
-  const s = subjectFromHash();
-  if (s === "cyber" || s === "software") {
-    try { localStorage.setItem(`THEME:${s}`, theme); } catch {}
-  }
-}
-
-function applyMode(mode) {
-  if (!mode) return;
-  document.documentElement.setAttribute("data-mode", mode);
-  try { localStorage.setItem("MODE:active", mode); } catch {}
 }
 
 export default function ThemeSwitcher() {
@@ -34,21 +29,40 @@ export default function ThemeSwitcher() {
   const [mode, setMode] = useState(() => localStorage.getItem("MODE:active") || "dark");
   const subject = subjectFromHash();
 
-  const themes = useMemo(() => {
-    if (subject === "software") return SUBJECT_THEMES.software;
-    if (subject === "cyber") return SUBJECT_THEMES.cyber;
-    // hub: show a merged quick list
-    return [...SUBJECT_THEMES.cyber.slice(0,2), ...SUBJECT_THEMES.software.slice(0,2)];
+  const darkList = useMemo(() => {
+    if (subject === "software") return SOFTWARE_DARK;
+    if (subject === "cyber") return CYBER_DARK;
+    return [...CYBER_DARK.slice(0,2), ...SOFTWARE_DARK.slice(0,1)];
   }, [subject]);
 
-  const currentTheme = document.documentElement.getAttribute("data-theme") ||
-    localStorage.getItem("THEME:active") || themes[0];
+  const currentTheme =
+    document.documentElement.getAttribute("data-theme") ||
+    localStorage.getItem("THEME:active") ||
+    (subject === "software" ? SOFTWARE_DARK[0] : CYBER_DARK[0]);
 
+  /** Load stored dark pick per subject */
+  function getStoredDark() {
+    try { return localStorage.getItem(`THEME_DARK:${subject}`); } catch {}
+    return null;
+  }
+  function setStoredDark(t) {
+    try { localStorage.setItem(`THEME_DARK:${subject}`, t); } catch {}
+  }
+
+  /** Apply correct theme whenever mode/subject changes */
   useEffect(() => {
-    applyMode(mode);
-  }, [mode]);
+    try { localStorage.setItem("MODE:active", mode); } catch {}
+    if (mode === "light") {
+      const comp = LIGHT_COMPANION[subject] || LIGHT_COMPANION.hub;
+      setTheme(comp);
+    } else {
+      const pick = getStoredDark() || darkList[0];
+      setTheme(pick);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, subject]);
 
-  // close on route change
+  // close on navigation
   useEffect(() => {
     const onHash = () => setOpen(false);
     window.addEventListener("hashchange", onHash);
@@ -61,12 +75,12 @@ export default function ThemeSwitcher() {
         className="btn btn-sm btn-ghost border border-base-300/60"
         onClick={() => setOpen((v) => !v)}
       >
-        🎨 {currentTheme?.replace(/^cyber-|^dev-/, "") || "theme"}
+        🎨 {currentTheme?.replace(/^cyber-|^dev-/, "")}
       </button>
 
       {open && (
         <div className="dropdown-content z-[60] mt-2 p-3 w-64 rounded-xl border border-base-300 bg-base-100 shadow-xl">
-          {/* mode toggle */}
+          {/* Light / Dark toggle */}
           <div className="join w-full mb-3">
             <button
               className={`btn btn-xs join-item ${mode === "light" ? "btn-active" : "btn-ghost"}`}
@@ -78,20 +92,24 @@ export default function ThemeSwitcher() {
             >🌙 Dark</button>
           </div>
 
-          {/* subject chip (read-only) */}
+          {/* subject hint */}
           <div className="badge badge-outline mb-2">
             {subject === "software" ? "Software" : subject === "cyber" ? "Cyber" : "Hub"}
           </div>
 
-          {/* theme list — NO per-theme 'dark' label anymore */}
+          {/* Dark themes list only; when in Light mode, we remember choice for the next time user flips back to Dark */}
           <ul className="menu w-full max-h-64 overflow-auto">
-            {themes.map((t) => {
-              const active = t === currentTheme;
+            {darkList.map((t) => {
+              const active = t === currentTheme && mode === "dark";
               return (
                 <li key={t}>
                   <button
                     className={`justify-between ${active ? "active" : ""}`}
-                    onClick={() => { applyTheme(t); setOpen(false); }}
+                    onClick={() => {
+                      setStoredDark(t);
+                      if (mode === "dark") setTheme(t);
+                      setOpen(false);
+                    }}
                   >
                     <span>{t.replace(/^cyber-|^dev-/, "")}</span>
                     {active && <span className="badge badge-sm">selected</span>}

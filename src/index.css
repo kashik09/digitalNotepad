@@ -2,7 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* small niceties */
+/* app shell */
 html, body, #root { height: 100%; }
 body { @apply bg-base-100 text-base-content; }
 .navbar { @apply sticky top-0 z-40 backdrop-blur-sm bg-base-100/90; }
+
+/* NOTE AREAS: make them match current theme */
+textarea,
+.textarea,
+.notes-area {
+  @apply bg-base-200 text-base-content border border-base-300 rounded-xl w-full;
+}
+textarea:focus,
+.textarea:focus,
+.notes-area:focus {
+  @apply outline-none ring-2 ring-primary/40 border-primary;
+}
+
+/* small: cards & lists tighter on phones */
+@media (max-width: 640px) {
+  .card .card-body { @apply p-4; }
+}

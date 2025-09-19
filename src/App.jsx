@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./theme/ThemeProvider.jsx";
 import ThemeSwitcher from "./components/ThemeSwitcher.jsx";
-import DataMenu from "./components/DataMenu.jsx";
-import SubjectSwitch from "./components/SubjectSwitch.jsx";
 import Login from "./pages/Login.jsx";
 import Hub from "./pages/Hub.jsx";
-import HomeHub from "./pages/HomeHub.jsx";         // Cyber notes shell
-import SoftwareHub from "./pages/SoftwareHub.jsx"; // Software sub-hub
-import SoftwareApp from "./pages/SoftwareApp.jsx"; // Software notes
+import HomeHub from "./pages/HomeHub.jsx";
+import SoftwareHub from "./pages/SoftwareHub.jsx";
+import SoftwareApp from "./pages/SoftwareApp.jsx";
 import SoftwareProjects from "./pages/SoftwareProjects.jsx";
 import ModuleView from "./pages/ModuleView.jsx";
 import NotFound from "./pages/NotFound.jsx";
@@ -18,8 +16,8 @@ const LAST_ROUTE_KEY = "LAST:route";
 
 function subjectFromHash() {
   const h = (window.location.hash || "").toLowerCase();
-  if (h.startsWith("#/software")) return "Software";
-  if (h.startsWith("#/phase/") || h.startsWith("#/cyber")) return "Cyber";
+  if (h.startsWith("#/software")) return "Software Engineering";
+  if (h.startsWith("#/phase/") || h.startsWith("#/cyber")) return "Cybersecurity";
   if (h.startsWith("#/login")) return "Login";
   return "Hub";
 }
@@ -27,7 +25,6 @@ function subjectFromHash() {
 export default function App() {
   const [subject, setSubject] = useState(subjectFromHash());
 
-  // Guard: block protected routes when not authed; Persist last route otherwise
   useEffect(() => {
     function guardAndPersist() {
       const hash = window.location.hash || "#/";
@@ -37,7 +34,6 @@ export default function App() {
         window.location.hash = "#/login";
         return;
       }
-      // persist last route (skip login)
       if (!isLogin) {
         try { localStorage.setItem(LAST_ROUTE_KEY, hash); } catch {}
       }
@@ -51,17 +47,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <div className="min-h-dvh bg-base-100 text-base-content">
-        {/* Top bar */}
-        <div className="navbar px-4 border-b border-base-300/60">
-          <div className="navbar-start gap-2">
-            <a href="#/hub" className="btn btn-ghost text-lg font-semibold">Notes Hub</a>
-            <span className="badge badge-outline">{subject}</span>
-          </div>
-          <div className="navbar-end gap-2">
-            <DataMenu />
-            <SubjectSwitch />
-            <ThemeSwitcher />
-          </div>
+        {/* navbar: ThemeSwitcher only */}
+        <div className="navbar px-4 border-b border-base-300/60 justify-end">
+          <ThemeSwitcher />
         </div>
 
         <HashRouter>
