@@ -3,3 +3,11 @@ dist/
 .DS_Store
 npm-debug.log*
 .env*
+
+# build / tooling
+dist/
+.vite/
+*.log
+node_modules/
+.env*
+.DS_Store
