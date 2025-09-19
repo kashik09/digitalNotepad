@@ -1,4 +1,4 @@
-import ItemRow from "./ItemRowCompat.jsx";
+import ItemRow from "./ItemRowCompact.jsx";
 
 function cleanItem(it) {
   if (!it || it.type === "discussion") return null;
