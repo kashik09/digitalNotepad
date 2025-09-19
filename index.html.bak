@@ -5,6 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React</title>
+  <script>(function(){
+    try {
+      var t = localStorage.getItem("THEME:active") || "cyber-neon";
+      var m = localStorage.getItem("MODE:active") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+      document.documentElement.setAttribute("data-mode", m);
+    } catch(e) {}
+  })();</script>
   </head>
   <body>
     <div id="root"></div>
