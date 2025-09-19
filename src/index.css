@@ -1,5 +1,8 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* small niceties */
 html, body, #root { height: 100%; }
 body { @apply bg-base-100 text-base-content; }
 .navbar { @apply sticky top-0 z-40 backdrop-blur-sm bg-base-100/90; }
