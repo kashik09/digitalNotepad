@@ -46,3 +46,6 @@ export function ItemRow({ item, state, onToggleDone, onSaveNote }) {
     </div>
   );
 }
+
+// compat: provide default export for bundlers
+export default ItemRow;
