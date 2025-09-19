@@ -1,14 +1,10 @@
-import ItemRow from "./ItemRow.jsx";
+import * as ItemRowNS from "./ItemRow.jsx";
+const ItemRow = ItemRowNS.default || ItemRowNS.ItemRow;
 
 function cleanItem(it) {
-  // Drop discussions entirely at call sites; this is a safety guard
   if (!it || it.type === "discussion") return null;
-
   const meta = it.meta && typeof it.meta === "object" ? { ...it.meta } : undefined;
-  if (meta && "points" in meta) {
-    // remove points display everywhere
-    delete meta.points;
-  }
+  if (meta && "points" in meta) delete meta.points;
   return meta ? { ...it, meta } : { ...it };
 }
 
@@ -20,15 +16,12 @@ export default function ModuleBlock({ module, query = "" }) {
 
   const sections = Array.isArray(module.sections) ? module.sections : [];
 
-  // Build a section list with:
-  // 1) discussions removed
-  // 2) meta.points stripped
-  // 3) optional query filtering on item titles
   const baseSections = sections
     .map((sec) => {
       const items = (Array.isArray(sec.items) ? sec.items : [])
         .filter((it) => it?.type !== "discussion")
-        .map(cleanItem);
+        .map(cleanItem)
+        .filter(Boolean);
       return { ...sec, items };
     })
     .filter((sec) => sec.items && sec.items.length > 0);

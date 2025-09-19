@@ -1,5 +1,4 @@
-import * as ItemRowNS from "./ItemRow.jsx";
-const ItemRow = ItemRowNS.default || ItemRowNS.ItemRow;
+import ItemRow from "./ItemRowCompat.jsx";
 
 function cleanItem(it) {
   if (!it || it.type === "discussion") return null;
