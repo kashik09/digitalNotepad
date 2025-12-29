@@ -1,9 +1,11 @@
+'use client';
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 const AUTH_OK_KEY = "AUTH:ok";
 const AUTH_PIN_KEY = "AUTH:pin";
-const AUTH_USERS_KEY = "AUTH:users"; // {"alice": {password:"...", pin:"optional"}}
+const AUTH_USERS_KEY = "AUTH:users";
 const AUTH_USER_KEY = "AUTH:user";
 const LAST_ROUTE_KEY = "LAST:route";
 
@@ -15,30 +17,29 @@ function saveUsers(o) {
 }
 
 export default function Login() {
-  const nav = useNavigate();
+  const router = useRouter();
 
-  const [users, setUsers] = useState(loadUsers());
+  const [users, setUsers] = useState({});
   const [hasPin, setHasPin] = useState(false);
-
-  const [mode, setMode] = useState("login"); // "login" | "register"
+  const [mode, setMode] = useState("login");
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [pin, setPin] = useState("");
   const [regUser, setRegUser] = useState("");
   const [regPass, setRegPass] = useState("");
   const [regPin, setRegPin] = useState("");
-
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setUsers(loadUsers());
     setHasPin(!!localStorage.getItem(AUTH_PIN_KEY));
   }, []);
 
   function resumeRoute() {
     let last = "";
     try { last = localStorage.getItem(LAST_ROUTE_KEY) || ""; } catch {}
-    if (last && last !== "#/login" && last !== "#/") window.location.hash = last;
-    else nav("/hub");
+    if (last && last !== "/login" && last !== "/") router.push(last);
+    else router.push("/hub");
   }
 
   function doEnter(username) {
@@ -55,7 +56,6 @@ export default function Login() {
     if (!u || !pass) return setError("Enter username and password.");
     const db = loadUsers();
     if (!db[u] || db[u].password !== pass) return setError("Invalid credentials.");
-    // optional global PIN gate (if set)
     const globalPin = localStorage.getItem(AUTH_PIN_KEY);
     if (globalPin && pin !== globalPin) return setError("Wrong PIN.");
     doEnter(u);
@@ -70,7 +70,6 @@ export default function Login() {
     db[u] = { password: regPass };
     saveUsers(db);
     setUsers(db);
-    // set optional global PIN now if provided
     if (regPin && /^\d{4}$/.test(regPin)) {
       localStorage.setItem(AUTH_PIN_KEY, regPin);
       setHasPin(true);
@@ -91,7 +90,6 @@ export default function Login() {
           <div className="text-5xl mb-2">🔐</div>
           <h1 className="text-xl font-semibold mb-1">Welcome</h1>
 
-          {/* toggle small */}
           <div className="join my-2">
             <button className={`btn btn-xs join-item ${mode==="login"?"btn-active":"btn-ghost"}`} onClick={()=>setMode("login")}>Login</button>
             <button className={`btn btn-xs join-item ${mode==="register"?"btn-active":"btn-ghost"}`} onClick={()=>setMode("register")}>Register</button>

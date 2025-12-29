@@ -1,4 +1,7 @@
+'use client';
+
 import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 
 /* Only show DARK choices in the list */
 const CYBER_DARK = ["cyber-neon", "cyber-terminal", "cyber-indigo"];
@@ -15,10 +18,11 @@ const THEME_PAIRS = {
 const REVERSE_PAIRS = Object.fromEntries(Object.entries(THEME_PAIRS).map(([d,l]) => [l,d]));
 
 /* Subject from route */
-function subjectFromHash() {
-  const h = (window.location.hash || "").toLowerCase();
-  if (h.startsWith("#/software")) return "software";
-  if (h.startsWith("#/cyber") || h.startsWith("#/phase/")) return "cyber";
+function subjectFromPath(path) {
+  if (!path) return "hub";
+  const p = path.toLowerCase();
+  if (p.startsWith("/software")) return "software";
+  if (p.startsWith("/cyber") || p.startsWith("/phase/")) return "cyber";
   return "hub";
 }
 
@@ -30,9 +34,16 @@ const kDarkPick = (s)=>`THEME_DARK:${s}`;
 function setTheme(t){ if(!t) return; document.documentElement.setAttribute("data-theme", t); try{localStorage.setItem("THEME:active", t);}catch{} }
 
 export default function ThemeSwitcher(){
+  const pathname = usePathname();
   const [open,setOpen]=useState(false);
-  const [mode,setMode]=useState(()=>localStorage.getItem(kMode) || "dark");
-  const subject = subjectFromHash();
+  const [mode,setMode]=useState("dark");
+  const [mounted, setMounted] = useState(false);
+  const subject = subjectFromPath(pathname);
+
+  useEffect(() => {
+    setMode(localStorage.getItem(kMode) || "dark");
+    setMounted(true);
+  }, []);
 
   const darkList = useMemo(()=> subject==="software"? SOFTWARE_DARK : subject==="cyber" ? CYBER_DARK : [...CYBER_DARK.slice(0,1), ...SOFTWARE_DARK.slice(0,1)], [subject]);
 
@@ -60,10 +71,10 @@ export default function ThemeSwitcher(){
 
   // Close on navigation
   useEffect(()=>{
-    const onHash=()=>setOpen(false);
-    window.addEventListener("hashchange", onHash);
-    return ()=>window.removeEventListener("hashchange", onHash);
-  },[]);
+    setOpen(false);
+  },[pathname]);
+
+  if (!mounted) return null;
 
   const currentTheme = document.documentElement.getAttribute("data-theme") || localStorage.getItem("THEME:active") || darkList[0];
   // In light mode, derive display label from its dark twin so the chip reads consistently

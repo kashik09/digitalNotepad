@@ -1,10 +1,12 @@
+'use client';
+
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import Overview from "../components/Overview.jsx";
-import Spinner from "../components/Spinner.jsx";
-import ProgressRing from "../components/ProgressRing.jsx";
-import * as starterData from "../data/starter.js"; // tolerate default or named exports
-import { LS_KEY } from "../utils/format.js";
+import Link from "next/link";
+import Overview from "@/src/components/Overview";
+import Spinner from "@/src/components/Spinner";
+import ProgressRing from "@/src/components/ProgressRing";
+import * as starterData from "@/src/data/starter.js";
+import { LS_KEY } from "@/src/utils/format.js";
 
 function resolveStarter(data) {
   const d = data?.default;
@@ -16,9 +18,10 @@ function resolveStarter(data) {
 const STARTER = resolveStarter(starterData);
 
 function moduleProgress(mod) {
+  if (typeof window === 'undefined') return { total: 0, done: 0, pct: 0 };
   const raw = localStorage.getItem(LS_KEY);
   let itemsStore = {};
-  try { itemsStore = JSON.parse(raw || "{}")?.items || {}; } catch {/* noop */}
+  try { itemsStore = JSON.parse(raw || "{}")?.items || {}; } catch {}
   let total = 0, done = 0;
   for (const sec of mod?.sections || []) {
     for (const it of sec?.items || []) {
@@ -32,7 +35,7 @@ function moduleProgress(mod) {
 }
 
 export default function HomeHub() {
-  const [view, setView] = useState("overview"); // "overview" | "notes"
+  const [view, setView] = useState("overview");
   const [currentPhaseId, setCurrentPhaseId] = useState(STARTER?.phases?.[0]?.id || "phase1");
   const [phase, setPhase] = useState(null);
   const phases = useMemo(() => STARTER?.phases || [], []);
@@ -41,9 +44,8 @@ export default function HomeHub() {
     let mounted = true;
     (async () => {
       try {
-        const mod = await import("../data/loadPhase.js");
-        const loadPhase =
-          mod.default || mod.loadPhase || mod.load || mod.fetchPhase;
+        const mod = await import("@/src/data/loadPhase.js");
+        const loadPhase = mod.default || mod.loadPhase || mod.load || mod.fetchPhase;
         if (typeof loadPhase !== "function") {
           console.error("[loadPhase] no function export in src/data/loadPhase.js");
           return;
@@ -59,7 +61,6 @@ export default function HomeHub() {
 
   return (
     <div className="p-4 sm:p-6">
-      {/* Tabs */}
       <div role="tablist" className="tabs tabs-boxed tabs-sm mb-4">
         <button role="tab" className={`tab ${view === "overview" ? "tab-active" : ""}`} onClick={() => setView("overview")}>Overview</button>
         <button role="tab" className={`tab ${view === "notes" ? "tab-active" : ""}`} onClick={() => setView("notes")}>Notes</button>
@@ -69,7 +70,6 @@ export default function HomeHub() {
         <Overview />
       ) : (
         <div className="space-y-6">
-          {/* Phase selector (no search here) */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             {phases.map((p) => (
               <button
@@ -82,7 +82,6 @@ export default function HomeHub() {
             ))}
           </div>
 
-          {/* Modules grid for the selected phase */}
           {!phase ? (
             <Spinner label="Loading phase…" />
           ) : (
@@ -92,7 +91,7 @@ export default function HomeHub() {
                 return (
                   <Link
                     key={m.id}
-                    to={`/phase/${currentPhaseId}/module/${m.id}`}
+                    href={`/phase/${currentPhaseId}/module/${m.id}`}
                     className="card bg-base-200 hover:bg-base-300 border border-base-300/60 transition-colors"
                   >
                     <div className="card-body">

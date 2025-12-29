@@ -1,14 +1,17 @@
+'use client';
+
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import Spinner from "../components/Spinner.jsx";
-import ProgressRing from "../components/ProgressRing.jsx";
-import ModuleBlock from "../components/ModuleBlock.jsx";
-import { LS_KEY } from "../utils/format.js";
+import { useParams, useRouter } from "next/navigation";
+import Spinner from "@/src/components/Spinner";
+import ProgressRing from "@/src/components/ProgressRing";
+import ModuleBlock from "@/src/components/ModuleBlock";
+import { LS_KEY } from "@/src/utils/format.js";
 
 function modulePercent(mod) {
+  if (typeof window === 'undefined') return 0;
   const raw = localStorage.getItem(LS_KEY);
   let itemsStore = {};
-  try { itemsStore = JSON.parse(raw || "{}")?.items || {}; } catch {/* noop */}
+  try { itemsStore = JSON.parse(raw || "{}")?.items || {}; } catch {}
   let total = 0, done = 0;
   for (const sec of mod?.sections || []) {
     for (const it of sec?.items || []) {
@@ -21,8 +24,11 @@ function modulePercent(mod) {
 }
 
 export default function ModuleView() {
-  const nav = useNavigate();
-  const { phaseId, moduleId } = useParams();
+  const router = useRouter();
+  const params = useParams();
+  const phaseId = params.phaseId;
+  const moduleId = params.moduleId;
+
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState(null);
   const [q, setQ] = useState("");
@@ -32,9 +38,8 @@ export default function ModuleView() {
     (async () => {
       try {
         setLoading(true);
-        const mod = await import("../data/loadPhase.js");
-        const loadPhase =
-          mod.default || mod.loadPhase || mod.load || mod.fetchPhase;
+        const mod = await import("@/src/data/loadPhase.js");
+        const loadPhase = mod.default || mod.loadPhase || mod.load || mod.fetchPhase;
         if (typeof loadPhase !== "function") {
           console.error("[loadPhase] no function export in src/data/loadPhase.js");
           return;
@@ -59,7 +64,7 @@ export default function ModuleView() {
     return (
       <div className="p-6">
         <div className="mb-3">
-          <button className="btn btn-ghost btn-sm" onClick={() => nav("#/") || nav("/")}>← Back</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => router.push("/")}>← Back</button>
         </div>
         <div className="alert alert-warning">
           <span>Module not found. Check the phase and module IDs.</span>
@@ -73,7 +78,7 @@ export default function ModuleView() {
   return (
     <div className="pb-8">
       <div className="px-4 pt-4">
-        <button className="btn btn-ghost btn-sm" onClick={() => nav(-1)}>← Back</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => router.back()}>← Back</button>
       </div>
 
       <header className="px-4 pt-2">

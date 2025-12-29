@@ -1,19 +1,22 @@
+'use client';
+
 import { useEffect, useMemo, useState } from "react";
 
 const SW_PROJECTS_KEY = "SOFT:projects";
 
 function loadProjects() {
+  if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(SW_PROJECTS_KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
-  // seed examples
   return [
     { id: "p1", title: "CLI Password Manager", status: "in-progress", link: "", tags: ["node", "crypto"] },
     { id: "p2", title: "REST API + Auth", status: "planned", link: "", tags: ["express", "jwt"] },
   ];
 }
 function saveProjects(arr) {
+  if (typeof window === 'undefined') return;
   try { localStorage.setItem(SW_PROJECTS_KEY, JSON.stringify(arr)); } catch {}
 }
 
@@ -22,10 +25,14 @@ function Tag({ children }) {
 }
 
 export default function SoftwareProjects() {
-  const [items, setItems] = useState(loadProjects());
+  const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState({ title: "", link: "", tags: "", status: "planned" });
   const [filter, setFilter] = useState("all");
+
+  useEffect(() => {
+    setItems(loadProjects());
+  }, []);
 
   useEffect(() => { saveProjects(items); }, [items]);
 
@@ -98,7 +105,6 @@ export default function SoftwareProjects() {
         ))}
       </div>
 
-      {/* Modal */}
       <div className={`modal ${open ? "modal-open" : ""}`}>
         <div className="modal-box">
           <h3 className="font-semibold mb-2">Add Project</h3>

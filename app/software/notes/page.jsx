@@ -1,12 +1,13 @@
+'use client';
+
 import { useState } from "react";
-import OverviewSoftware from "../components/OverviewSoftware.jsx";
+import OverviewSoftware from "@/src/components/OverviewSoftware";
 
 export default function SoftwareApp() {
-  const [view, setView] = useState("overview"); // "overview" | "notes"
+  const [view, setView] = useState("overview");
 
   return (
     <div className="p-4 sm:p-6">
-      {/* Tabs */}
       <div role="tablist" className="tabs tabs-boxed mb-4">
         <button
           role="tab"
@@ -33,7 +34,7 @@ export default function SoftwareApp() {
             Your Software Dev modules will appear here (own data + routes), separate from Cyber.
           </p>
           <div className="alert">
-            <span>Stub view — we’ll wire modules & sections when you’re ready.</span>
+            <span>Stub view — we'll wire modules & sections when you're ready.</span>
           </div>
         </div>
       )}
