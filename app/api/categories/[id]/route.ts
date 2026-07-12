@@ -1,69 +1,37 @@
 /**
- * Individual Category API Route
+ * Individual Category API Route (db.json-backed)
  * PUT/DELETE specific category
  */
 
-import { createServerClient } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
+import { getCurrentUser, listCategories, updateCategory, deleteCategory } from '@/lib/jsondb';
+import type { Category } from '@/lib/db-types';
 
-/**
- * PUT /api/categories/[id]
- * Update a category
- */
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = createServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    const { id } = await params;
+    const user = await getCurrentUser();
     const body = await request.json();
     const { name, color, icon, position } = body;
 
-    const updates: any = { updated_at: new Date().toISOString() };
+    const updates: Partial<Category> = {};
 
     if (name !== undefined) {
       if (name.trim().length === 0) {
         return NextResponse.json({ error: 'Name cannot be empty' }, { status: 400 });
       }
-
-      // Check for duplicate name
-      const { data: existing } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('name', name.trim())
-        .neq('id', params.id)
-        .single();
-
-      if (existing) {
+      const cats = await listCategories(user.id);
+      if (cats.some((c) => c.id !== id && c.name === name.trim())) {
         return NextResponse.json({ error: 'Category with this name already exists' }, { status: 409 });
       }
-
       updates.name = name.trim();
     }
-
     if (color !== undefined) updates.color = color;
     if (icon !== undefined) updates.icon = icon;
     if (position !== undefined) updates.position = position;
 
-    const { data: category, error } = await supabase
-      .from('categories')
-      .update(updates)
-      .eq('id', params.id)
-      .eq('user_id', user.id)
-      .select()
-      .single();
-
-    if (error || !category) {
-      return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
-    }
-
+    const category = await updateCategory(id, user.id, updates);
+    if (!category) return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     return NextResponse.json({ category });
   } catch (error) {
     console.error('Category PUT error:', error);
@@ -71,32 +39,12 @@ export async function PUT(
   }
 }
 
-/**
- * DELETE /api/categories/[id]
- * Delete a category (notes will have category_id set to null due to ON DELETE SET NULL)
- */
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = createServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { error } = await supabase
-      .from('categories')
-      .delete()
-      .eq('id', params.id)
-      .eq('user_id', user.id);
-
-    if (error) {
-      return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });
-    }
-
+    const { id } = await params;
+    const user = await getCurrentUser();
+    const removed = await deleteCategory(id, user.id);
+    if (!removed) return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Category DELETE error:', error);

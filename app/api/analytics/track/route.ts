@@ -1,24 +1,14 @@
 /**
- * Analytics Tracking API Route
+ * Analytics Tracking API Route (db.json-backed)
  * POST event tracking
  */
 
-import { createServerClient } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
+import { getCurrentUser, trackEvent } from '@/lib/jsondb';
 
-/**
- * POST /api/analytics/track
- * Track an analytics event
- */
 export async function POST(request: Request) {
   try {
-    const supabase = createServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    const user = await getCurrentUser();
     const body = await request.json();
     const { event_type, metadata } = body;
 
@@ -26,17 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'event_type is required' }, { status: 400 });
     }
 
-    const { error } = await supabase.from('analytics_events').insert({
-      user_id: user.id,
-      event_type,
-      metadata: metadata || {},
-    });
-
-    if (error) {
-      console.error('Error tracking event:', error);
-      return NextResponse.json({ error: 'Failed to track event' }, { status: 500 });
-    }
-
+    await trackEvent(user.id, event_type, metadata || {});
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Analytics track error:', error);
